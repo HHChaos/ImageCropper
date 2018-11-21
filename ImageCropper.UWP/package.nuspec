@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <!--*-->
+    <id>ImageCropper.UWP</id>
+    <!--*-->
+    <version>1.0.0</version>
+    <title>ImageCropper.UWP</title>
+    <!--*-->
+    <authors>HHChaos</authors>
+    <owners>HHChaos</owners>
+    <licenseUrl>https://github.com/HHChaos/ImageCropper/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/HHChaos/ImageCropper</projectUrl>
+    <!--
+    <iconUrl></iconUrl>
+-->
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <!--*-->
+    <description>UWP ImageCropper</description>
+    <!--*-->
+    <releaseNotes>Initial version</releaseNotes>
+    <copyright>HHChaos Copyright ©  2018</copyright>
+    <tags>C# UWP ImageCropper Cropper </tags>
+    <dependencies>
+      <!--
+      <dependency id="SampleDependency" version="1.0" />
+-->
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="bin\Release\Themes\*.xbf" target="lib\uap10.0\ImageCropper.UWP\Themes" />
+    <file src="bin\Release\ImageCropper.UWP.dll" target="lib\uap10.0" />
+    <file src="bin\Release\ImageCropper.UWP.pdb" target="lib\uap10.0" />
+    <file src="bin\Release\ImageCropper.UWP.pri" target="lib\uap10.0" />
+    <file src="bin\Release\ImageCropper.UWP.xr.xml" target="lib\uap10.0\ImageCropper.UWP" />
+  </files>
+</package>
