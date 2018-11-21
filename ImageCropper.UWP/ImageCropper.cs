@@ -46,6 +46,8 @@ namespace ImageCropper.UWP
             }
         }
 
+        private Size MinClipSize => MinSelectSize;
+
         protected override void OnApplyTemplate()
         {
             _layoutGrid = GetTemplateChild(LayoutGridName) as Grid;
@@ -157,8 +159,12 @@ namespace ImageCropper.UWP
             var inverseImageTransform = ImageTransform.Inverse;
             if (inverseImageTransform != null)
             {
-                _currentClipRect =
-                    inverseImageTransform.TransformBounds(new Rect(new Point(X1, Y1), new Point(X2, Y2)));
+                var selectedRect = new Rect(new Point(X1, Y1), new Point(X2, Y2));
+                var newClipRect = inverseImageTransform.TransformBounds(selectedRect);
+                if (newClipRect.Width > MinClipSize.Width && newClipRect.Height > MinClipSize.Height)
+                {
+                    _currentClipRect = newClipRect;
+                }
                 UpdateImageLayout();
             }
         }
@@ -210,7 +216,8 @@ namespace ImageCropper.UWP
             if (ImageTransform == null)
                 ImageTransform = new CompositeTransform();
             _maxClipRect = new Rect(0, 0, SourceImage.PixelWidth, SourceImage.PixelHeight);
-            _currentClipRect = KeepAspectRatio ? _maxClipRect.GetUniformRect(AspectRatio) : _maxClipRect;
+            var maxSelectedRect = new Rect(1, 1, SourceImage.PixelWidth - 2, SourceImage.PixelHeight - 2);
+            _currentClipRect = KeepAspectRatio ? maxSelectedRect.GetUniformRect(AspectRatio) : maxSelectedRect;
             UpdateImageLayout();
         }
 
@@ -229,11 +236,13 @@ namespace ImageCropper.UWP
             ImageTransform.TranslateY = viewport.Y - viewportImgRect.Y * imageScale;
             var selectedRect = ImageTransform.TransformBounds(_currentClipRect);
             _limitedRect = ImageTransform.TransformBounds(_maxClipRect);
+            var startPoint = _limitedRect.GetSafePoint(new Point(selectedRect.X, selectedRect.Y));
+            var endPoint = _limitedRect.GetSafePoint(new Point(selectedRect.X + selectedRect.Width, selectedRect.Y + selectedRect.Height));
             _changeByCode = true;
-            X1 = selectedRect.X;
-            Y1 = selectedRect.Y;
-            X2 = selectedRect.X + selectedRect.Width;
-            Y2 = selectedRect.Y + selectedRect.Height;
+            X1 = startPoint.X;
+            Y1 = startPoint.Y;
+            X2 = endPoint.X;
+            Y2 = endPoint.Y;
             _changeByCode = false;
         }
 
@@ -279,7 +288,7 @@ namespace ImageCropper.UWP
                     break;
             }
 
-            if (_limitedRect.Contains(startPoint) && _limitedRect.Contains(endPoint))
+            if (_limitedRect.IsSafePoint(startPoint) && _limitedRect.IsSafePoint(endPoint))
             {
                 var canvasRect = new Rect(0, 0, CanvasWidth, CanvasHeight);
                 var newRect = new Rect(startPoint, endPoint);
@@ -333,8 +342,18 @@ namespace ImageCropper.UWP
 
         private static void OnSourceImageChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var target = (ImageCropper) d;
-            target.InitImageLayout();
+            var target = (ImageCropper)d;
+            if (e.NewValue is WriteableBitmap bitmap)
+            {
+                if (bitmap.PixelWidth > target.MinClipSize.Width && bitmap.PixelHeight > target.MinClipSize.Height)
+                {
+                    target.InitImageLayout();
+                }
+                else
+                {
+                    throw new ArgumentException("Image size is too small!");
+                }
+            }
         }
 
         private static void OnAspectRatioChanged(

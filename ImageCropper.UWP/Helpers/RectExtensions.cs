@@ -23,6 +23,19 @@ namespace ImageCropper.UWP.Helpers
             return safePoint;
         }
 
+        public static bool IsSafePoint(this Rect targetRect, Point point)
+        {
+            if (point.X - targetRect.X < 0.01)
+                return false;
+            if (point.X - (targetRect.X + targetRect.Width) > 0.01)
+                return false;
+            if (point.Y - targetRect.Y < 0.01)
+                return false;
+            if (point.Y - (targetRect.Y + targetRect.Height) > 0.01)
+                return false;
+            return true;
+        }
+
         public static Rect GetUniformRect(this Rect targetRect, double aspectRatio)
         {
             var ratio = targetRect.Width / targetRect.Height;
