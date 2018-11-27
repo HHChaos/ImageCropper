@@ -5,7 +5,7 @@ UWP ImageCropper.
 
 博客分享地址（最新修改时间2018.11.27）：
 
-[[UWP\]如何实现UWP平台最佳图片裁剪控件](https://www.cnblogs.com/hhchaos/p/10021952.html)
+[[UWP]如何实现UWP平台最佳图片裁剪控件](https://www.cnblogs.com/hhchaos/p/10021952.html)
 
 使用效果见下方动图。
 
