@@ -29,31 +29,30 @@
                         <Canvas x:Name="PART_ImageCanvas">
                             <Image
                                 x:Name="PART_SourceImage"
-                                RenderTransform="{TemplateBinding ImageTransform}"
                                 Source="{TemplateBinding SourceImage}" />
                             <Path
-                                Data="{TemplateBinding MaskArea}"
+                                x:Name="PART_MaskAreaPath"
                                 Fill="Black"
                                 Opacity="0.8"
                                 Stroke="White"
                                 StrokeThickness="1" />
                             <Button
-                                x:Name="PART_TopLeftCorner"
+                                x:Name="PART_UpperLeftButton"
                                 Canvas.Left="{TemplateBinding X1}"
                                 Canvas.Top="{TemplateBinding Y1}"
                                 Style="{StaticResource DragButtonStyle}"/>
                             <Button
-                                x:Name="PART_TopRightCorner"
+                                x:Name="PART_UpperRightButton"
                                 Canvas.Left="{TemplateBinding X2}"
                                 Canvas.Top="{TemplateBinding Y1}"
                                 Style="{StaticResource DragButtonStyle}"/>
                             <Button
-                                x:Name="PART_BottomLeftCorner"
+                                x:Name="PART_LowerLeftButton"
                                 Canvas.Left="{TemplateBinding X1}"
                                 Canvas.Top="{TemplateBinding Y2}"
                                 Style="{StaticResource DragButtonStyle}"/>
                             <Button
-                                x:Name="PART_BottomRightCorner"
+                                x:Name="PART_LowerRightButton"
                                 Canvas.Left="{TemplateBinding X2}"
                                 Canvas.Top="{TemplateBinding Y2}"
                                 Style="{StaticResource DragButtonStyle}"/>

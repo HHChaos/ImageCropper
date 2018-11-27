@@ -7,6 +7,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
+using Windows.UI.Xaml.Shapes;
 using ImageCropper.UWP.Helpers;
 
 // The Templated Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234235
@@ -16,6 +17,7 @@ namespace ImageCropper.UWP
     [TemplatePart(Name = LayoutGridName, Type = typeof(Grid))]
     [TemplatePart(Name = ImageCanvasPartName, Type = typeof(Canvas))]
     [TemplatePart(Name = SourceImagePartName, Type = typeof(Image))]
+    [TemplatePart(Name = MaskAreaPathPartName, Type = typeof(Path))]
     [TemplatePart(Name = UpperLeftButtonPartName, Type = typeof(Button))]
     [TemplatePart(Name = UpperRightButtonPartName, Type = typeof(Button))]
     [TemplatePart(Name = LowerLeftButtonPartName, Type = typeof(Button))]
@@ -53,7 +55,7 @@ namespace ImageCropper.UWP
             _layoutGrid = GetTemplateChild(LayoutGridName) as Grid;
             _imageCanvas = GetTemplateChild(ImageCanvasPartName) as Canvas;
             _sourceImage = GetTemplateChild(SourceImagePartName) as Image;
-
+            _maskAreaPath = GetTemplateChild(MaskAreaPathPartName) as Path;
             _upperLeftButton = GetTemplateChild(UpperLeftButtonPartName) as Button;
             _upperRightButton = GetTemplateChild(UpperRightButtonPartName) as Button;
             _lowerLeftButton = GetTemplateChild(LowerLeftButtonPartName) as Button;
@@ -68,8 +70,14 @@ namespace ImageCropper.UWP
                 _layoutGrid.SizeChanged += LayoutGrid_SizeChanged;
             if (_sourceImage != null)
             {
+                _sourceImage.RenderTransform = _imageTransform;
                 _sourceImage.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
                 _sourceImage.ManipulationDelta += SourceImage_ManipulationDelta;
+            }
+
+            if (_maskAreaPath != null)
+            {
+                _maskAreaPath.Data = _maskAreaGeometryGroup;
             }
 
             if (_upperLeftButton != null)
@@ -118,7 +126,7 @@ namespace ImageCropper.UWP
 
         public async Task<WriteableBitmap> GetCroppedBitmapAsync()
         {
-            if (SourceImage == null || ImageTransform == null)
+            if (SourceImage == null)
                 return null;
             return await SourceImage.GetCroppedBitmapAsync(_currentClipRect);
         }
@@ -128,23 +136,26 @@ namespace ImageCropper.UWP
         private const string LayoutGridName = "PART_LayoutGrid";
         private const string ImageCanvasPartName = "PART_ImageCanvas";
         private const string SourceImagePartName = "PART_SourceImage";
-        private const string UpperLeftButtonPartName = "PART_TopLeftCorner";
-        private const string UpperRightButtonPartName = "PART_TopRightCorner";
-        private const string LowerLeftButtonPartName = "PART_BottomLeftCorner";
-        private const string LowerRightButtonPartName = "PART_BottomRightCorner";
+        private const string MaskAreaPathPartName = "PART_MaskAreaPath";
+        private const string UpperLeftButtonPartName = "PART_UpperLeftButton";
+        private const string UpperRightButtonPartName = "PART_UpperRightButton";
+        private const string LowerLeftButtonPartName = "PART_LowerLeftButton";
+        private const string LowerRightButtonPartName = "PART_LowerRightButton";
 
         #endregion
 
         #region Fields
-
+        
         private Grid _layoutGrid;
         private Canvas _imageCanvas;
         private Image _sourceImage;
+        private Path _maskAreaPath;
         private Button _upperLeftButton;
         private Button _upperRightButton;
         private Button _lowerLeftButton;
         private Button _lowerRigthButton;
-        private readonly GeometryGroup _maskArea = new GeometryGroup {FillRule = FillRule.EvenOdd};
+        private readonly GeometryGroup _maskAreaGeometryGroup = new GeometryGroup {FillRule = FillRule.EvenOdd};
+        private readonly CompositeTransform _imageTransform = new CompositeTransform();
         private bool _changeByCode;
         private Rect _currentClipRect = Rect.Empty;
         private Rect _limitedRect = Rect.Empty;
@@ -156,7 +167,7 @@ namespace ImageCropper.UWP
 
         private void DragButton_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
         {
-            var inverseImageTransform = ImageTransform.Inverse;
+            var inverseImageTransform = _imageTransform.Inverse;
             if (inverseImageTransform != null)
             {
                 var selectedRect = new Rect(new Point(X1, Y1), new Point(X2, Y2));
@@ -181,7 +192,7 @@ namespace ImageCropper.UWP
         private void SourceImage_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
             var diffPos = e.Delta.Translation;
-            var inverseImageTransform = ImageTransform.Inverse;
+            var inverseImageTransform = _imageTransform.Inverse;
             if (inverseImageTransform != null)
             {
                 var startPoint = new Point(X1 - diffPos.X, Y1 - diffPos.Y);
@@ -201,7 +212,7 @@ namespace ImageCropper.UWP
 
         private void LayoutGrid_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            if (SourceImage == null || ImageTransform == null)
+            if (SourceImage == null)
                 return;
             UpdateImageLayout();
             UpdateMaskArea();
@@ -213,8 +224,6 @@ namespace ImageCropper.UWP
 
         private void InitImageLayout()
         {
-            if (ImageTransform == null)
-                ImageTransform = new CompositeTransform();
             _maxClipRect = new Rect(0, 0, SourceImage.PixelWidth, SourceImage.PixelHeight);
             var maxSelectedRect = new Rect(1, 1, SourceImage.PixelWidth - 2, SourceImage.PixelHeight - 2);
             _currentClipRect = KeepAspectRatio ? maxSelectedRect.GetUniformRect(AspectRatio) : maxSelectedRect;
@@ -231,11 +240,11 @@ namespace ImageCropper.UWP
         private void UpdateImageLayoutWithViewport(Rect viewport, Rect viewportImgRect)
         {
             var imageScale = viewport.Width / viewportImgRect.Width;
-            ImageTransform.ScaleX = ImageTransform.ScaleY = imageScale;
-            ImageTransform.TranslateX = viewport.X - viewportImgRect.X * imageScale;
-            ImageTransform.TranslateY = viewport.Y - viewportImgRect.Y * imageScale;
-            var selectedRect = ImageTransform.TransformBounds(_currentClipRect);
-            _limitedRect = ImageTransform.TransformBounds(_maxClipRect);
+            _imageTransform.ScaleX = _imageTransform.ScaleY = imageScale;
+            _imageTransform.TranslateX = viewport.X - viewportImgRect.X * imageScale;
+            _imageTransform.TranslateY = viewport.Y - viewportImgRect.Y * imageScale;
+            var selectedRect = _imageTransform.TransformBounds(_currentClipRect);
+            _limitedRect = _imageTransform.TransformBounds(_maxClipRect);
             var startPoint = _limitedRect.GetSafePoint(new Point(selectedRect.X, selectedRect.Y));
             var endPoint = _limitedRect.GetSafePoint(new Point(selectedRect.X + selectedRect.Width, selectedRect.Y + selectedRect.Height));
             _changeByCode = true;
@@ -296,7 +305,7 @@ namespace ImageCropper.UWP
                 if (canvasRect.X < 0 || canvasRect.Y < 0 || canvasRect.Width > CanvasWidth ||
                     canvasRect.Height > CanvasHeight)
                 {
-                    var inverseImageTransform = ImageTransform.Inverse;
+                    var inverseImageTransform = _imageTransform.Inverse;
                     if (inverseImageTransform != null)
                     {
                         var movedRect = inverseImageTransform.TransformBounds(
@@ -321,14 +330,13 @@ namespace ImageCropper.UWP
 
         private void UpdateMaskArea()
         {
-            _maskArea.Children.Clear();
-            _maskArea.Children.Add(new RectangleGeometry
+            _maskAreaGeometryGroup.Children.Clear();
+            _maskAreaGeometryGroup.Children.Add(new RectangleGeometry
             {
                 Rect = new Rect(-_layoutGrid.Padding.Left, -_layoutGrid.Padding.Top, _layoutGrid.ActualWidth,
                     _layoutGrid.ActualHeight)
             });
-            _maskArea.Children.Add(new RectangleGeometry {Rect = new Rect(new Point(X1, Y1), new Point(X2, Y2))});
-            MaskArea = _maskArea;
+            _maskAreaGeometryGroup.Children.Add(new RectangleGeometry {Rect = new Rect(new Point(X1, Y1), new Point(X2, Y2))});
             _layoutGrid.Clip = new RectangleGeometry
             {
                 Rect = new Rect(0, 0, _layoutGrid.ActualWidth,
@@ -362,7 +370,7 @@ namespace ImageCropper.UWP
             var target = (ImageCropper) d;
             if (target.KeepAspectRatio)
             {
-                var inverseImageTransform = target.ImageTransform.Inverse;
+                var inverseImageTransform = target._imageTransform.Inverse;
                 if (inverseImageTransform != null)
                 {
                     var selectedRect = new Rect(new Point(target.X1, target.Y1), new Point(target.X2, target.Y2));
@@ -429,19 +437,6 @@ namespace ImageCropper.UWP
             set => SetValue(Y2Property, value);
         }
 
-        public GeometryGroup MaskArea
-        {
-            get => (GeometryGroup) GetValue(MaskAreaProperty);
-            set => SetValue(MaskAreaProperty, value);
-        }
-
-
-        public CompositeTransform ImageTransform
-        {
-            get => (CompositeTransform) GetValue(ImageTransformProperty);
-            set => SetValue(ImageTransformProperty, value);
-        }
-
         // Using a DependencyProperty as the backing store for AspectRatio.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty AspectRatioProperty =
             DependencyProperty.Register("AspectRatio", typeof(double), typeof(ImageCropper),
@@ -467,20 +462,10 @@ namespace ImageCropper.UWP
             DependencyProperty.Register("Y2", typeof(double), typeof(ImageCropper),
                 new PropertyMetadata(20d, OnSelectedRectChanged));
 
-        // Using a DependencyProperty as the backing store for MaskArea.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MaskAreaProperty =
-            DependencyProperty.Register("MaskArea", typeof(GeometryGroup), typeof(ImageCropper),
-                new PropertyMetadata(null));
-
         // Using a DependencyProperty as the backing store for SourceImage.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SourceImageProperty =
             DependencyProperty.Register("SourceImage", typeof(WriteableBitmap), typeof(ImageCropper),
                 new PropertyMetadata(null, OnSourceImageChanged));
-
-        // Using a DependencyProperty as the backing store for ImageTransform.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ImageTransformProperty =
-            DependencyProperty.Register("ImageTransform", typeof(CompositeTransform), typeof(ImageCropper),
-                new PropertyMetadata(default(CompositeTransform)));
 
         #endregion
     }
