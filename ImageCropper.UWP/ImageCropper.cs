@@ -432,6 +432,9 @@ namespace ImageCropper.UWP
 
         private void UpdateSelectedRect(Point startPoint, Point endPoint)
         {
+            if (endPoint.X - startPoint.X < MinSelectSize.Width ||
+                endPoint.Y - startPoint.Y < MinSelectSize.Height)
+                return;
             _startX = startPoint.X;
             _startY = startPoint.Y;
             _endX = endPoint.X;
