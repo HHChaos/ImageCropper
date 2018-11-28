@@ -21,41 +21,30 @@
             </Setter.Value>
         </Setter>
     </Style>
-    <Style TargetType="local:ImageCropper" >
+    <Style TargetType="local:ImageCropper">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="local:ImageCropper">
-                    <Grid x:Name="PART_LayoutGrid" Padding="80">
+                    <Grid
+                        x:Name="PART_LayoutGrid"
+                        Padding="80"
+                        Background="Black">
                         <Canvas x:Name="PART_ImageCanvas">
-                            <Image
-                                x:Name="PART_SourceImage"
-                                Source="{TemplateBinding SourceImage}" />
+                            <Image x:Name="PART_SourceImage" Source="{TemplateBinding SourceImage}" />
                             <Path
                                 x:Name="PART_MaskAreaPath"
                                 Fill="Black"
                                 Opacity="0.8"
                                 Stroke="White"
                                 StrokeThickness="1" />
-                            <Button
-                                x:Name="PART_UpperLeftButton"
-                                Canvas.Left="{TemplateBinding X1}"
-                                Canvas.Top="{TemplateBinding Y1}"
-                                Style="{StaticResource DragButtonStyle}"/>
-                            <Button
-                                x:Name="PART_UpperRightButton"
-                                Canvas.Left="{TemplateBinding X2}"
-                                Canvas.Top="{TemplateBinding Y1}"
-                                Style="{StaticResource DragButtonStyle}"/>
-                            <Button
-                                x:Name="PART_LowerLeftButton"
-                                Canvas.Left="{TemplateBinding X1}"
-                                Canvas.Top="{TemplateBinding Y2}"
-                                Style="{StaticResource DragButtonStyle}"/>
-                            <Button
-                                x:Name="PART_LowerRightButton"
-                                Canvas.Left="{TemplateBinding X2}"
-                                Canvas.Top="{TemplateBinding Y2}"
-                                Style="{StaticResource DragButtonStyle}"/>
+                            <Button x:Name="PART_TopButton" Style="{StaticResource DragButtonStyle}" />
+                            <Button x:Name="PART_BottomButton" Style="{StaticResource DragButtonStyle}" />
+                            <Button x:Name="PART_LeftButton" Style="{StaticResource DragButtonStyle}" />
+                            <Button x:Name="PART_RightButton" Style="{StaticResource DragButtonStyle}" />
+                            <Button x:Name="PART_UpperLeftButton" Style="{StaticResource DragButtonStyle}" />
+                            <Button x:Name="PART_UpperRightButton" Style="{StaticResource DragButtonStyle}" />
+                            <Button x:Name="PART_LowerLeftButton" Style="{StaticResource DragButtonStyle}" />
+                            <Button x:Name="PART_LowerRightButton" Style="{StaticResource DragButtonStyle}" />
                         </Canvas>
                     </Grid>
                 </ControlTemplate>

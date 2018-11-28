@@ -18,6 +18,10 @@ namespace ImageCropper.UWP
     [TemplatePart(Name = ImageCanvasPartName, Type = typeof(Canvas))]
     [TemplatePart(Name = SourceImagePartName, Type = typeof(Image))]
     [TemplatePart(Name = MaskAreaPathPartName, Type = typeof(Path))]
+    [TemplatePart(Name = TopButtonPartName, Type = typeof(Button))]
+    [TemplatePart(Name = BottomButtonPartName, Type = typeof(Button))]
+    [TemplatePart(Name = LeftButtonPartName, Type = typeof(Button))]
+    [TemplatePart(Name = RightButtonPartName, Type = typeof(Button))]
     [TemplatePart(Name = UpperLeftButtonPartName, Type = typeof(Button))]
     [TemplatePart(Name = UpperRightButtonPartName, Type = typeof(Button))]
     [TemplatePart(Name = LowerLeftButtonPartName, Type = typeof(Button))]
@@ -31,14 +35,15 @@ namespace ImageCropper.UWP
 
         private double CanvasWidth => _imageCanvas.ActualWidth;
         private double CanvasHeight => _imageCanvas.ActualHeight;
-        public bool KeepAspectRatio => AspectRatio > 0;
+        public bool KeepAspectRatio => UsedAspectRatio > 0;
+        private double UsedAspectRatio => RoundedCrop ? 1 : AspectRatio;
         public double MinLength { get; set; } = 40;
 
         private Size MinSelectSize
         {
             get
             {
-                var aspectRatio = KeepAspectRatio ? AspectRatio : 1;
+                var aspectRatio = KeepAspectRatio ? UsedAspectRatio : 1;
                 var size = new Size(MinLength, MinLength);
                 if (aspectRatio >= 1)
                     size.Width = size.Height * aspectRatio;
@@ -56,6 +61,10 @@ namespace ImageCropper.UWP
             _imageCanvas = GetTemplateChild(ImageCanvasPartName) as Canvas;
             _sourceImage = GetTemplateChild(SourceImagePartName) as Image;
             _maskAreaPath = GetTemplateChild(MaskAreaPathPartName) as Path;
+            _topButton = GetTemplateChild(TopButtonPartName) as Button;
+            _bottomButton = GetTemplateChild(BottomButtonPartName) as Button;
+            _leftButton = GetTemplateChild(LeftButtonPartName) as Button;
+            _rigthButton = GetTemplateChild(RightButtonPartName) as Button;
             _upperLeftButton = GetTemplateChild(UpperLeftButtonPartName) as Button;
             _upperRightButton = GetTemplateChild(UpperRightButtonPartName) as Button;
             _lowerLeftButton = GetTemplateChild(LowerLeftButtonPartName) as Button;
@@ -78,6 +87,38 @@ namespace ImageCropper.UWP
             if (_maskAreaPath != null)
             {
                 _maskAreaPath.Data = _maskAreaGeometryGroup;
+            }
+
+            if (_topButton != null)
+            {
+                _topButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
+                _topButton.Tag = DragPoint.Top;
+                _topButton.ManipulationDelta += DragButton_ManipulationDelta;
+                _topButton.ManipulationCompleted += DragButton_ManipulationCompleted;
+            }
+
+            if (_bottomButton != null)
+            {
+                _bottomButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
+                _bottomButton.Tag = DragPoint.Bottom;
+                _bottomButton.ManipulationDelta += DragButton_ManipulationDelta;
+                _bottomButton.ManipulationCompleted += DragButton_ManipulationCompleted;
+            }
+
+            if (_leftButton != null)
+            {
+                _leftButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
+                _leftButton.Tag = DragPoint.Left;
+                _leftButton.ManipulationDelta += DragButton_ManipulationDelta;
+                _leftButton.ManipulationCompleted += DragButton_ManipulationCompleted;
+            }
+
+            if (_rigthButton != null)
+            {
+                _rigthButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
+                _rigthButton.Tag = DragPoint.Right;
+                _rigthButton.ManipulationDelta += DragButton_ManipulationDelta;
+                _rigthButton.ManipulationCompleted += DragButton_ManipulationCompleted;
             }
 
             if (_upperLeftButton != null)
@@ -137,6 +178,10 @@ namespace ImageCropper.UWP
         private const string ImageCanvasPartName = "PART_ImageCanvas";
         private const string SourceImagePartName = "PART_SourceImage";
         private const string MaskAreaPathPartName = "PART_MaskAreaPath";
+        private const string TopButtonPartName = "PART_TopButton";
+        private const string BottomButtonPartName = "PART_BottomButton";
+        private const string LeftButtonPartName = "PART_LeftButton";
+        private const string RightButtonPartName = "PART_RightButton";
         private const string UpperLeftButtonPartName = "PART_UpperLeftButton";
         private const string UpperRightButtonPartName = "PART_UpperRightButton";
         private const string LowerLeftButtonPartName = "PART_LowerLeftButton";
@@ -150,16 +195,23 @@ namespace ImageCropper.UWP
         private Canvas _imageCanvas;
         private Image _sourceImage;
         private Path _maskAreaPath;
+        private Button _topButton;
+        private Button _bottomButton;
+        private Button _leftButton;
+        private Button _rigthButton;
         private Button _upperLeftButton;
         private Button _upperRightButton;
         private Button _lowerLeftButton;
         private Button _lowerRigthButton;
         private readonly GeometryGroup _maskAreaGeometryGroup = new GeometryGroup {FillRule = FillRule.EvenOdd};
         private readonly CompositeTransform _imageTransform = new CompositeTransform();
-        private bool _changeByCode;
         private Rect _currentClipRect = Rect.Empty;
         private Rect _limitedRect = Rect.Empty;
         private Rect _maxClipRect = Rect.Empty;
+        private double _startX = 0d;
+        private double _startY = 0d;
+        private double _endX = 20d;
+        private double _endY = 20d;
 
         #endregion
 
@@ -170,7 +222,7 @@ namespace ImageCropper.UWP
             var inverseImageTransform = _imageTransform.Inverse;
             if (inverseImageTransform != null)
             {
-                var selectedRect = new Rect(new Point(X1, Y1), new Point(X2, Y2));
+                var selectedRect = new Rect(new Point(_startX, _startY), new Point(_endX, _endY));
                 var newClipRect = inverseImageTransform.TransformBounds(selectedRect);
                 if (newClipRect.Width > MinClipSize.Width && newClipRect.Height > MinClipSize.Height)
                 {
@@ -195,8 +247,8 @@ namespace ImageCropper.UWP
             var inverseImageTransform = _imageTransform.Inverse;
             if (inverseImageTransform != null)
             {
-                var startPoint = new Point(X1 - diffPos.X, Y1 - diffPos.Y);
-                var endPoint = new Point(X2 - diffPos.X, Y2 - diffPos.Y);
+                var startPoint = new Point(_startX - diffPos.X, _startY - diffPos.Y);
+                var endPoint = new Point(_endX - diffPos.X, _endY - diffPos.Y);
                 if (_limitedRect.Contains(startPoint) && _limitedRect.Contains(endPoint))
                 {
                     var selectedRect = new Rect(startPoint, endPoint);
@@ -226,7 +278,7 @@ namespace ImageCropper.UWP
         {
             _maxClipRect = new Rect(0, 0, SourceImage.PixelWidth, SourceImage.PixelHeight);
             var maxSelectedRect = new Rect(1, 1, SourceImage.PixelWidth - 2, SourceImage.PixelHeight - 2);
-            _currentClipRect = KeepAspectRatio ? maxSelectedRect.GetUniformRect(AspectRatio) : maxSelectedRect;
+            _currentClipRect = KeepAspectRatio ? maxSelectedRect.GetUniformRect(UsedAspectRatio) : maxSelectedRect;
             UpdateImageLayout();
         }
 
@@ -247,38 +299,83 @@ namespace ImageCropper.UWP
             _limitedRect = _imageTransform.TransformBounds(_maxClipRect);
             var startPoint = _limitedRect.GetSafePoint(new Point(selectedRect.X, selectedRect.Y));
             var endPoint = _limitedRect.GetSafePoint(new Point(selectedRect.X + selectedRect.Width, selectedRect.Y + selectedRect.Height));
-            _changeByCode = true;
-            X1 = startPoint.X;
-            Y1 = startPoint.Y;
-            X2 = endPoint.X;
-            Y2 = endPoint.Y;
-            _changeByCode = false;
+            UpdateSelectedRect(startPoint, endPoint);
         }
 
         private void UpdateClipRectWithAspectRatio(DragPoint dragPoint, Point diffPos)
         {
             if (KeepAspectRatio)
             {
-                if (Math.Abs(diffPos.X / diffPos.Y) > AspectRatio)
+                if (Math.Abs(diffPos.X / diffPos.Y) > UsedAspectRatio)
                 {
-                    if (dragPoint == DragPoint.UpperLeft || dragPoint == DragPoint.LowerRight)
-                        diffPos.Y = diffPos.X / AspectRatio;
-                    else
-                        diffPos.Y = -diffPos.X / AspectRatio;
+                    switch (dragPoint)
+                    {
+                        case DragPoint.UpperLeft:
+                        case DragPoint.LowerRight:
+                            diffPos.Y = diffPos.X / UsedAspectRatio;
+                            break;
+                        case DragPoint.UpperRight:
+                        case DragPoint.LowerLeft:
+                            diffPos.Y = -diffPos.X / UsedAspectRatio;
+                            break;
+                    }
                 }
                 else
                 {
-                    if (dragPoint == DragPoint.UpperLeft || dragPoint == DragPoint.LowerRight)
-                        diffPos.X = diffPos.Y * AspectRatio;
-                    else
-                        diffPos.X = -diffPos.Y * AspectRatio;
+                    switch (dragPoint)
+                    {
+                        case DragPoint.UpperLeft:
+                        case DragPoint.LowerRight:
+                            diffPos.X = diffPos.Y * UsedAspectRatio;
+                            break;
+                        case DragPoint.UpperRight:
+                        case DragPoint.LowerLeft:
+                            diffPos.X = -diffPos.Y * UsedAspectRatio;
+                            break;
+                    }
                 }
             }
 
-            var startPoint = new Point(X1, Y1);
-            var endPoint = new Point(X2, Y2);
+            var startPoint = new Point(_startX, _startY);
+            var endPoint = new Point(_endX, _endY);
             switch (dragPoint)
             {
+                case DragPoint.Top:
+                    startPoint.Y += diffPos.Y;
+                    if (KeepAspectRatio)
+                    {
+                        startPoint.X += diffPos.Y / 2;
+                        endPoint.X -= diffPos.Y / 2;
+                    }
+
+                    break;
+                case DragPoint.Bottom:
+                    endPoint.Y += diffPos.Y;
+                    if (KeepAspectRatio)
+                    {
+                        startPoint.X -= diffPos.Y / 2;
+                        endPoint.X += diffPos.Y / 2;
+                    }
+
+                    break;
+                case DragPoint.Left:
+                    startPoint.X += diffPos.X;
+                    if (KeepAspectRatio)
+                    {
+                        startPoint.Y += diffPos.X / 2;
+                        endPoint.Y -= diffPos.X / 2;
+                    }
+
+                    break;
+                case DragPoint.Right:
+                    endPoint.X += diffPos.X;
+                    if (KeepAspectRatio)
+                    {
+                        startPoint.Y -= diffPos.X / 2;
+                        endPoint.Y += diffPos.X / 2;
+                    }
+
+                    break;
                 case DragPoint.UpperLeft:
                     startPoint.X += diffPos.X;
                     startPoint.Y += diffPos.Y;
@@ -320,12 +417,68 @@ namespace ImageCropper.UWP
                 }
                 else
                 {
-                    X1 = startPoint.X;
-                    Y1 = startPoint.Y;
-                    X2 = endPoint.X;
-                    Y2 = endPoint.Y;
+                    UpdateSelectedRect(startPoint, endPoint);
                 }
             }
+        }
+
+        private void UpdateSelectedRect(Point startPoint, Point endPoint)
+        {
+            _startX = startPoint.X;
+            _startY = startPoint.Y;
+            _endX = endPoint.X;
+            _endY = endPoint.Y;
+            var centerX = (_endX - _startX) / 2 + _startX;
+            var centerY = (_endY - _startY) / 2 + _startY;
+            if (_topButton != null)
+            {
+                Canvas.SetLeft(_topButton, centerX);
+                Canvas.SetTop(_topButton, _startY);
+            }
+
+            if (_bottomButton != null)
+            {
+                Canvas.SetLeft(_bottomButton, centerX);
+                Canvas.SetTop(_bottomButton, _endY);
+            }
+
+            if (_leftButton != null)
+            {
+                Canvas.SetLeft(_leftButton, _startX);
+                Canvas.SetTop(_leftButton, centerY);
+            }
+
+            if (_rigthButton != null)
+            {
+                Canvas.SetLeft(_rigthButton, _endX);
+                Canvas.SetTop(_rigthButton, centerY);
+            }
+
+            if (_upperLeftButton != null)
+            {
+                Canvas.SetLeft(_upperLeftButton, _startX);
+                Canvas.SetTop(_upperLeftButton, _startY);
+            }
+
+            if (_upperRightButton != null)
+            {
+                Canvas.SetLeft(_upperRightButton, _endX);
+                Canvas.SetTop(_upperRightButton, _startY);
+            }
+
+            if (_lowerLeftButton != null)
+            {
+                Canvas.SetLeft(_lowerLeftButton, _startX);
+                Canvas.SetTop(_lowerLeftButton, _endY);
+            }
+
+            if (_lowerRigthButton != null)
+            {
+                Canvas.SetLeft(_lowerRigthButton, _endX);
+                Canvas.SetTop(_lowerRigthButton, _endY);
+            }
+
+            UpdateMaskArea();
         }
 
         private void UpdateMaskArea()
@@ -336,12 +489,71 @@ namespace ImageCropper.UWP
                 Rect = new Rect(-_layoutGrid.Padding.Left, -_layoutGrid.Padding.Top, _layoutGrid.ActualWidth,
                     _layoutGrid.ActualHeight)
             });
-            _maskAreaGeometryGroup.Children.Add(new RectangleGeometry {Rect = new Rect(new Point(X1, Y1), new Point(X2, Y2))});
+            if (RoundedCrop)
+            {
+                var centerX = (_endX - _startX) / 2 + _startX;
+                var centerY = (_endY - _startY) / 2 + _startY;
+                _maskAreaGeometryGroup.Children.Add(new EllipseGeometry
+                {
+                    Center = new Point(centerX, centerY),
+                    RadiusX = (_endX - _startX) / 2,
+                    RadiusY = (_endY - _startY) / 2
+                });
+            }
+            else
+            {
+                _maskAreaGeometryGroup.Children.Add(new RectangleGeometry
+                {
+                    Rect = new Rect(new Point(_startX, _startY), new Point(_endX, _endY))
+                });
+            }
+
             _layoutGrid.Clip = new RectangleGeometry
             {
                 Rect = new Rect(0, 0, _layoutGrid.ActualWidth,
                     _layoutGrid.ActualHeight)
             };
+        }
+
+        private void UpdateAspectRatio()
+        {
+            if (KeepAspectRatio)
+            {
+                var inverseImageTransform = _imageTransform.Inverse;
+                if (inverseImageTransform != null)
+                {
+                    var selectedRect = new Rect(new Point(_startX, _startY), new Point(_endX, _endY));
+                    var uniformSelectedRect = selectedRect.GetUniformRect(UsedAspectRatio);
+                    _currentClipRect = inverseImageTransform.TransformBounds(uniformSelectedRect);
+                    UpdateImageLayout();
+                }
+            }
+        }
+
+        private void UpdateDragButton()
+        {
+            var visibility = RoundedCrop ? Visibility.Collapsed : Visibility.Visible;
+            if (_upperLeftButton != null)
+            {
+                _upperLeftButton.Visibility = visibility;
+            }
+
+            if (_upperRightButton != null)
+            {
+                _upperRightButton.Visibility = visibility;
+            }
+
+            if (_lowerLeftButton != null)
+            {
+                _lowerLeftButton.Visibility = visibility;
+            }
+
+            if (_lowerRigthButton != null)
+            {
+                _lowerRigthButton.Visibility = visibility;
+            }
+
+            UpdateMaskArea();
         }
 
         #endregion
@@ -368,33 +580,15 @@ namespace ImageCropper.UWP
             DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var target = (ImageCropper) d;
-            if (target.KeepAspectRatio)
-            {
-                var inverseImageTransform = target._imageTransform.Inverse;
-                if (inverseImageTransform != null)
-                {
-                    var selectedRect = new Rect(new Point(target.X1, target.Y1), new Point(target.X2, target.Y2));
-                    var uniformSelectedRect = selectedRect.GetUniformRect(target.AspectRatio);
-                    target._currentClipRect = inverseImageTransform.TransformBounds(uniformSelectedRect);
-                    target.UpdateImageLayout();
-                }
-            }
+            target.UpdateAspectRatio();
         }
 
-        private static void OnSelectedRectChanged(
+        private static void OnRoundedCropChanged(
             DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var target = (ImageCropper) d;
-            if (!target._changeByCode)
-            {
-                target._changeByCode = true;
-                if (target.X2 - target.X1 < target.MinSelectSize.Width ||
-                    target.Y2 - target.Y1 < target.MinSelectSize.Height)
-                    d.SetValue(e.Property, e.OldValue);
-                target._changeByCode = false;
-            }
-
-            target.UpdateMaskArea();
+            var target = (ImageCropper)d;
+            target.UpdateAspectRatio();
+            target.UpdateDragButton();
         }
 
         public WriteableBitmap SourceImage
@@ -412,29 +606,10 @@ namespace ImageCropper.UWP
             set => SetValue(AspectRatioProperty, value);
         }
 
-        public double X1
+        public bool RoundedCrop
         {
-            get => (double) GetValue(X1Property);
-            set => SetValue(X1Property, value);
-        }
-
-
-        public double Y1
-        {
-            get => (double) GetValue(Y1Property);
-            set => SetValue(Y1Property, value);
-        }
-
-        public double X2
-        {
-            get => (double) GetValue(X2Property);
-            set => SetValue(X2Property, value);
-        }
-
-        public double Y2
-        {
-            get => (double) GetValue(Y2Property);
-            set => SetValue(Y2Property, value);
+            get => (bool)GetValue(RoundedCropProperty);
+            set => SetValue(RoundedCropProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for AspectRatio.  This enables animation, styling, binding, etc...
@@ -442,30 +617,15 @@ namespace ImageCropper.UWP
             DependencyProperty.Register("AspectRatio", typeof(double), typeof(ImageCropper),
                 new PropertyMetadata(-1d, OnAspectRatioChanged));
 
-        // Using a DependencyProperty as the backing store for X1.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty X1Property =
-            DependencyProperty.Register("X1", typeof(double), typeof(ImageCropper),
-                new PropertyMetadata(0d, OnSelectedRectChanged));
-
-        // Using a DependencyProperty as the backing store for Y1.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty Y1Property =
-            DependencyProperty.Register("Y1", typeof(double), typeof(ImageCropper),
-                new PropertyMetadata(0d, OnSelectedRectChanged));
-
-        // Using a DependencyProperty as the backing store for X2.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty X2Property =
-            DependencyProperty.Register("X2", typeof(double), typeof(ImageCropper),
-                new PropertyMetadata(20d, OnSelectedRectChanged));
-
-        // Using a DependencyProperty as the backing store for Y2.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty Y2Property =
-            DependencyProperty.Register("Y2", typeof(double), typeof(ImageCropper),
-                new PropertyMetadata(20d, OnSelectedRectChanged));
-
         // Using a DependencyProperty as the backing store for SourceImage.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SourceImageProperty =
             DependencyProperty.Register("SourceImage", typeof(WriteableBitmap), typeof(ImageCropper),
                 new PropertyMetadata(null, OnSourceImageChanged));
+
+        // Using a DependencyProperty as the backing store for RoundedCrop.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty RoundedCropProperty =
+            DependencyProperty.Register("RoundedCrop", typeof(bool), typeof(ImageCropper),
+                new PropertyMetadata(false, OnRoundedCropChanged));
 
         #endregion
     }

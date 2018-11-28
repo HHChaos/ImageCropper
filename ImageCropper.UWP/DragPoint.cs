@@ -8,6 +8,10 @@ namespace ImageCropper.UWP
 {
     public enum DragPoint
     {
+        Top,
+        Bottom,
+        Left,
+        Right,
         UpperLeft,
         UpperRight,
         LowerLeft,
