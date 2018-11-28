@@ -344,8 +344,9 @@ namespace ImageCropper.UWP
                     startPoint.Y += diffPos.Y;
                     if (KeepAspectRatio)
                     {
-                        startPoint.X += diffPos.Y / 2;
-                        endPoint.X -= diffPos.Y / 2;
+                        var changeX = diffPos.Y * UsedAspectRatio;
+                        startPoint.X += changeX / 2;
+                        endPoint.X -= changeX / 2;
                     }
 
                     break;
@@ -353,8 +354,9 @@ namespace ImageCropper.UWP
                     endPoint.Y += diffPos.Y;
                     if (KeepAspectRatio)
                     {
-                        startPoint.X -= diffPos.Y / 2;
-                        endPoint.X += diffPos.Y / 2;
+                        var changeX = diffPos.Y * UsedAspectRatio;
+                        startPoint.X -= changeX / 2;
+                        endPoint.X += changeX / 2;
                     }
 
                     break;
@@ -362,8 +364,9 @@ namespace ImageCropper.UWP
                     startPoint.X += diffPos.X;
                     if (KeepAspectRatio)
                     {
-                        startPoint.Y += diffPos.X / 2;
-                        endPoint.Y -= diffPos.X / 2;
+                        var changeY = diffPos.X / UsedAspectRatio;
+                        startPoint.Y += changeY / 2;
+                        endPoint.Y -= changeY / 2;
                     }
 
                     break;
@@ -371,8 +374,9 @@ namespace ImageCropper.UWP
                     endPoint.X += diffPos.X;
                     if (KeepAspectRatio)
                     {
-                        startPoint.Y -= diffPos.X / 2;
-                        endPoint.Y += diffPos.X / 2;
+                        var changeY = diffPos.X / UsedAspectRatio;
+                        startPoint.Y -= changeY / 2;
+                        endPoint.Y += changeY / 2;
                     }
 
                     break;
