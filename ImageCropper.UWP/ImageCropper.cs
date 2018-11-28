@@ -304,38 +304,12 @@ namespace ImageCropper.UWP
 
         private void UpdateClipRectWithAspectRatio(DragPoint dragPoint, Point diffPos)
         {
+            double radian=0d, diffPointRadian = 0d, effectiveLength = 0d;
             if (KeepAspectRatio)
             {
-                if (Math.Abs(diffPos.X / diffPos.Y) > UsedAspectRatio)
-                {
-                    switch (dragPoint)
-                    {
-                        case DragPoint.UpperLeft:
-                        case DragPoint.LowerRight:
-                            diffPos.Y = diffPos.X / UsedAspectRatio;
-                            break;
-                        case DragPoint.UpperRight:
-                        case DragPoint.LowerLeft:
-                            diffPos.Y = -diffPos.X / UsedAspectRatio;
-                            break;
-                    }
-                }
-                else
-                {
-                    switch (dragPoint)
-                    {
-                        case DragPoint.UpperLeft:
-                        case DragPoint.LowerRight:
-                            diffPos.X = diffPos.Y * UsedAspectRatio;
-                            break;
-                        case DragPoint.UpperRight:
-                        case DragPoint.LowerLeft:
-                            diffPos.X = -diffPos.Y * UsedAspectRatio;
-                            break;
-                    }
-                }
+                radian = Math.Atan(UsedAspectRatio);
+                diffPointRadian = Math.Atan(diffPos.X / diffPos.Y);
             }
-
             var startPoint = new Point(_startX, _startY);
             var endPoint = new Point(_endX, _endY);
             switch (dragPoint)
@@ -381,18 +355,48 @@ namespace ImageCropper.UWP
 
                     break;
                 case DragPoint.UpperLeft:
+                    if (KeepAspectRatio)
+                    {
+                        effectiveLength = diffPos.Y / Math.Cos(diffPointRadian) * Math.Cos(diffPointRadian - radian);
+                        diffPos.X = effectiveLength * Math.Sin(radian);
+                        diffPos.Y = effectiveLength * Math.Cos(radian);
+                    }
+
                     startPoint.X += diffPos.X;
                     startPoint.Y += diffPos.Y;
                     break;
                 case DragPoint.UpperRight:
+                    if (KeepAspectRatio)
+                    {
+                        diffPointRadian = -diffPointRadian;
+                        effectiveLength = diffPos.Y / Math.Cos(diffPointRadian) * Math.Cos(diffPointRadian - radian);
+                        diffPos.X = -effectiveLength * Math.Sin(radian);
+                        diffPos.Y = effectiveLength * Math.Cos(radian);
+                    }
+
                     endPoint.X += diffPos.X;
                     startPoint.Y += diffPos.Y;
                     break;
                 case DragPoint.LowerLeft:
+                    if (KeepAspectRatio)
+                    {
+                        diffPointRadian = -diffPointRadian;
+                        effectiveLength = diffPos.Y / Math.Cos(diffPointRadian) * Math.Cos(diffPointRadian - radian);
+                        diffPos.X = -effectiveLength * Math.Sin(radian);
+                        diffPos.Y = effectiveLength * Math.Cos(radian);
+                    }
+
                     startPoint.X += diffPos.X;
                     endPoint.Y += diffPos.Y;
                     break;
                 case DragPoint.LowerRight:
+                    if (KeepAspectRatio)
+                    {
+                        effectiveLength = diffPos.Y / Math.Cos(diffPointRadian) * Math.Cos(diffPointRadian - radian);
+                        diffPos.X = effectiveLength * Math.Sin(radian);
+                        diffPos.Y = effectiveLength * Math.Cos(radian);
+                    }
+
                     endPoint.X += diffPos.X;
                     endPoint.Y += diffPos.Y;
                     break;
