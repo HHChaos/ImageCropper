@@ -15,10 +15,6 @@ Now added rounded cropper!
 
 UWP:download from [Nuget](https://www.nuget.org/packages/ImageCropper.UWP/)
 
-```
-Install-Package ImageCropper.UWP -Version 1.0.0
-```
-
 ## Sample App
 
 [This is a sample app](https://github.com/HHChaos/ImageCropper/tree/master/ImageCropper.Sample)
