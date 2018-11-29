@@ -234,11 +234,18 @@ namespace ImageCropper.UWP
 
         private void DragButton_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            var element = (FrameworkElement) sender;
-            var pos = e.Delta.Translation;
-            var tag = element.Tag;
+            var dragButtom = (FrameworkElement) sender;
+            var dragButtomPosition = new Point(Canvas.GetLeft(dragButtom), Canvas.GetTop(dragButtom));
+            var currentPointerPosition = new Point(dragButtomPosition.X + e.Position.X + e.Delta.Translation.X,
+                Canvas.GetTop(dragButtom) + e.Position.Y + e.Delta.Translation.Y);
+            var safePosition = _limitedRect.GetSafePoint(currentPointerPosition);
+            var safeDiffPoint = new Point(safePosition.X - dragButtomPosition.X, safePosition.Y - dragButtomPosition.Y);
+            var tag = dragButtom.Tag;
             if (tag != null && Enum.TryParse(tag.ToString(), false, out DragPoint dragPoint))
-                UpdateClipRectWithAspectRatio(dragPoint, pos);
+            {
+                UpdateClipRectWithAspectRatio(dragPoint, safeDiffPoint);
+            }
+
         }
 
         private void SourceImage_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
@@ -304,12 +311,13 @@ namespace ImageCropper.UWP
 
         private void UpdateClipRectWithAspectRatio(DragPoint dragPoint, Point diffPos)
         {
-            double radian=0d, diffPointRadian = 0d, effectiveLength = 0d;
+            double radian = 0d, diffPointRadian = 0d, effectiveLength = 0d;
             if (KeepAspectRatio)
             {
                 radian = Math.Atan(UsedAspectRatio);
                 diffPointRadian = Math.Atan(diffPos.X / diffPos.Y);
             }
+
             var startPoint = new Point(_startX, _startY);
             var endPoint = new Point(_endX, _endY);
             switch (dragPoint)
