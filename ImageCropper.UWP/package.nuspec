@@ -4,7 +4,7 @@
     <!--*-->
     <id>ImageCropper.UWP</id>
     <!--*-->
-    <version>1.1.1</version>
+    <version>1.1.2</version>
     <title>ImageCropper.UWP</title>
     <!--*-->
     <authors>HHChaos</authors>
@@ -19,7 +19,7 @@
     <description>UWP ImageCropper</description>
     <!--*-->
     <releaseNotes>Now added rounded cropper!
-Fix bugs.</releaseNotes>
+Enhance the experience of clipping area expansion.</releaseNotes>
     <copyright>HHChaos Copyright ©  2018</copyright>
     <tags>C# UWP ImageCropper Cropper </tags>
     <dependencies>
