@@ -409,8 +409,60 @@ namespace ImageCropper.UWP
                     endPoint.Y += diffPos.Y;
                     break;
             }
-
-            if (_limitedRect.IsSafePoint(startPoint) && _limitedRect.IsSafePoint(endPoint))
+            if ((!KeepAspectRatio) && (!RectExtensions.IsSafeRect(startPoint, endPoint)))
+            {
+                switch (dragPoint)
+                {
+                    case DragPoint.Top:
+                    case DragPoint.Bottom:
+                    case DragPoint.Left:
+                    case DragPoint.Right:
+                        break;
+                    case DragPoint.UpperLeft:
+                        if (startPoint.X > endPoint.X)
+                        {
+                            startPoint.X = endPoint.X - MinSelectSize.Width;
+                        }
+                        if (startPoint.Y > endPoint.Y)
+                        {
+                            startPoint.Y = endPoint.Y - MinSelectSize.Height;
+                        }
+                        break;
+                    case DragPoint.UpperRight:
+                        if (startPoint.X > endPoint.X)
+                        {
+                            endPoint.X = startPoint.X + MinSelectSize.Width;
+                        }
+                        if (startPoint.Y > endPoint.Y)
+                        {
+                            startPoint.Y = endPoint.Y - MinSelectSize.Height;
+                        }
+                        break;
+                    case DragPoint.LowerLeft:
+                        if (startPoint.X > endPoint.X)
+                        {
+                            startPoint.X = endPoint.X - MinSelectSize.Width;
+                        }
+                        if (startPoint.Y > endPoint.Y)
+                        {
+                            endPoint.Y = startPoint.Y + MinSelectSize.Height;
+                        }
+                        break;
+                    case DragPoint.LowerRight:
+                        if (startPoint.X > endPoint.X)
+                        {
+                            endPoint.X = startPoint.X + MinSelectSize.Width;
+                        }
+                        if (startPoint.Y > endPoint.Y)
+                        {
+                            endPoint.Y = startPoint.Y + MinSelectSize.Height;
+                        }
+                        break;
+                }
+            }
+            if (RectExtensions.IsSafeRect(startPoint, endPoint)
+                && _limitedRect.IsSafePoint(startPoint)
+                && _limitedRect.IsSafePoint(endPoint))
             {
                 var canvasRect = new Rect(0, 0, CanvasWidth, CanvasHeight);
                 var newRect = new Rect(startPoint, endPoint);
