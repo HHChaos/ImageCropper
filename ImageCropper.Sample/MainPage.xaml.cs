@@ -65,30 +65,22 @@ namespace ImageCropper.Sample
 
         private async void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            var image = await ImageCropper.GetCroppedBitmapAsync();
             var picker = new FileSavePicker
             {
                 SuggestedStartLocation = PickerLocationId.PicturesLibrary,
                 SuggestedFileName = "Crop_Image"
             };
-            picker.FileTypeChoices.Add("Png Picture", new List<string> { ".png" });
+            picker.FileTypeChoices.Add("Png Picture", new List<string> { ".png", ".jpg" });
             var file = await picker.PickSaveFileAsync();
             if (file != null)
             {
-                using (var stream = await file.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.None))
+                if (file.Name.Contains(".png"))
                 {
-                    var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
-                    var pixelStream = image.PixelBuffer.AsStream();
-                    var pixels = new byte[pixelStream.Length];
-                    await pixelStream.ReadAsync(pixels, 0, pixels.Length);
-
-                    encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore,
-                        (uint)image.PixelWidth,
-                        (uint)image.PixelHeight,
-                        96.0,
-                        96.0,
-                        pixels);
-                    await encoder.FlushAsync();
+                    await ImageCropper.SaveCroppedBitmapAsync(file, BitmapEncoder.PngEncoderId);
+                }
+                else
+                {
+                    await ImageCropper.SaveCroppedBitmapAsync(file, BitmapEncoder.JpegEncoderId);
                 }
             }
         }

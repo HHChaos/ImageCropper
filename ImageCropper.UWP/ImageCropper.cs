@@ -173,6 +173,14 @@ namespace ImageCropper.UWP
             return await SourceImage.GetCroppedBitmapAsync(_currentClipRect);
         }
 
+        public async Task SaveCroppedBitmapAsync(StorageFile imageFile, Guid encoderId)
+        {
+            if (SourceImage == null)
+                return;
+            var croppedBitmap = await SourceImage.GetCroppedBitmapAsync(_currentClipRect);
+            await croppedBitmap.RenderToFile(imageFile, encoderId);
+        }
+
         #region Constants
 
         private const string LayoutGridName = "PART_LayoutGrid";

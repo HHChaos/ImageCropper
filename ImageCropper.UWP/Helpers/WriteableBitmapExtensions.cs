@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Graphics.Imaging;
+using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
 
@@ -43,6 +44,31 @@ namespace ImageCropper.UWP.Helpers
                 croppedBitmap.SetSource(memoryRandom);
             }
             return croppedBitmap;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="writeableBitmap"></param>
+        /// <param name="imageFile"></param>
+        /// <param name="encoderId">BitmapEncoder encoderId</param>
+        /// <returns></returns>
+        public static async Task RenderToFile(this WriteableBitmap writeableBitmap, StorageFile imageFile, Guid encoderId)
+        {
+            using (var stream = await imageFile.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.None))
+            {
+                var encoder = await BitmapEncoder.CreateAsync(encoderId, stream);
+                var pixelStream = writeableBitmap.PixelBuffer.AsStream();
+                var pixels = new byte[pixelStream.Length];
+                await pixelStream.ReadAsync(pixels, 0, pixels.Length);
+                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore,
+                    (uint)writeableBitmap.PixelWidth,
+                    (uint)writeableBitmap.PixelHeight,
+                    96.0,
+                    96.0,
+                    pixels);
+                await encoder.FlushAsync();
+            }
         }
     }
 }
