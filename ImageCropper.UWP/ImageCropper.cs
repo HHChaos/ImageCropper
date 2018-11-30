@@ -71,6 +71,7 @@ namespace ImageCropper.UWP
             _lowerRigthButton = GetTemplateChild(LowerRightButtonPartName) as Button;
 
             HookUpEvents();
+            UpdateDragButtonVisibility();
         }
 
         private void HookUpEvents()
@@ -256,7 +257,7 @@ namespace ImageCropper.UWP
             {
                 var startPoint = new Point(_startX - diffPos.X, _startY - diffPos.Y);
                 var endPoint = new Point(_endX - diffPos.X, _endY - diffPos.Y);
-                if (_limitedRect.Contains(startPoint) && _limitedRect.Contains(endPoint))
+                if (_limitedRect.IsSafePoint(startPoint) && _limitedRect.IsSafePoint(endPoint))
                 {
                     var selectedRect = new Rect(startPoint, endPoint);
                     if (selectedRect.Width < MinSelectSize.Width || selectedRect.Height < MinSelectSize.Height)
@@ -287,6 +288,7 @@ namespace ImageCropper.UWP
             var maxSelectedRect = new Rect(1, 1, SourceImage.PixelWidth - 2, SourceImage.PixelHeight - 2);
             _currentClipRect = KeepAspectRatio ? maxSelectedRect.GetUniformRect(UsedAspectRatio) : maxSelectedRect;
             UpdateImageLayout();
+            UpdateDragButtonVisibility();
         }
 
         private void UpdateImageLayout()
@@ -588,7 +590,7 @@ namespace ImageCropper.UWP
 
         private void UpdateAspectRatio()
         {
-            if (KeepAspectRatio)
+            if (KeepAspectRatio && SourceImage != null)
             {
                 var inverseImageTransform = _imageTransform.Inverse;
                 if (inverseImageTransform != null)
@@ -601,28 +603,29 @@ namespace ImageCropper.UWP
             }
         }
 
-        private void UpdateDragButton()
+        private void UpdateDragButtonVisibility()
         {
-            var visibility = RoundedCrop ? Visibility.Collapsed : Visibility.Visible;
+            var cornerBtnVisibility = RoundedCrop ? Visibility.Collapsed : Visibility.Visible;
+            var otherBtnVisibility = Visibility.Visible;
+            if (SourceImage == null)
+                cornerBtnVisibility = otherBtnVisibility = Visibility.Collapsed;
+
+            if (_topButton != null)
+                _topButton.Visibility = otherBtnVisibility;
+            if (_bottomButton != null)
+                _bottomButton.Visibility = otherBtnVisibility;
+            if (_leftButton != null)
+                _leftButton.Visibility = otherBtnVisibility;
+            if (_rigthButton != null)
+                _rigthButton.Visibility = otherBtnVisibility;
             if (_upperLeftButton != null)
-            {
-                _upperLeftButton.Visibility = visibility;
-            }
-
+                _upperLeftButton.Visibility = cornerBtnVisibility;
             if (_upperRightButton != null)
-            {
-                _upperRightButton.Visibility = visibility;
-            }
-
+                _upperRightButton.Visibility = cornerBtnVisibility;
             if (_lowerLeftButton != null)
-            {
-                _lowerLeftButton.Visibility = visibility;
-            }
-
+                _lowerLeftButton.Visibility = cornerBtnVisibility;
             if (_lowerRigthButton != null)
-            {
-                _lowerRigthButton.Visibility = visibility;
-            }
+                _lowerRigthButton.Visibility = cornerBtnVisibility;
 
             UpdateMaskArea();
         }
@@ -659,7 +662,7 @@ namespace ImageCropper.UWP
         {
             var target = (ImageCropper)d;
             target.UpdateAspectRatio();
-            target.UpdateDragButton();
+            target.UpdateDragButtonVisibility();
         }
 
         public WriteableBitmap SourceImage
@@ -683,21 +686,44 @@ namespace ImageCropper.UWP
             set => SetValue(RoundedCropProperty, value);
         }
 
+        public Brush MarkFill
+        {
+            get => (Brush)GetValue(MarkFillProperty);
+            set => SetValue(MarkFillProperty, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value for the style to use for the DragButton of the ImageCropper.
+        /// </summary>
+        public Style DragButtonStyle
+        {
+            get => (Style)GetValue(DragButtonStyleProperty);
+            set => SetValue(DragButtonStyleProperty, value);
+        }
+
         // Using a DependencyProperty as the backing store for AspectRatio.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty AspectRatioProperty =
-            DependencyProperty.Register("AspectRatio", typeof(double), typeof(ImageCropper),
+            DependencyProperty.Register(nameof(AspectRatio), typeof(double), typeof(ImageCropper),
                 new PropertyMetadata(-1d, OnAspectRatioChanged));
 
         // Using a DependencyProperty as the backing store for SourceImage.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SourceImageProperty =
-            DependencyProperty.Register("SourceImage", typeof(WriteableBitmap), typeof(ImageCropper),
+            DependencyProperty.Register(nameof(SourceImage), typeof(WriteableBitmap), typeof(ImageCropper),
                 new PropertyMetadata(null, OnSourceImageChanged));
 
         // Using a DependencyProperty as the backing store for RoundedCrop.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty RoundedCropProperty =
-            DependencyProperty.Register("RoundedCrop", typeof(bool), typeof(ImageCropper),
+            DependencyProperty.Register(nameof(RoundedCrop), typeof(bool), typeof(ImageCropper),
                 new PropertyMetadata(false, OnRoundedCropChanged));
 
+        // Using a DependencyProperty as the backing store for MarkFill.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MarkFillProperty =
+            DependencyProperty.Register(nameof(MarkFill), typeof(Brush), typeof(ImageCropper),
+                new PropertyMetadata(default(Brush)));
+
+        public static readonly DependencyProperty DragButtonStyleProperty =
+            DependencyProperty.Register(nameof(DragButtonStyle), typeof(Style), typeof(ImageCropper),
+                new PropertyMetadata(default(Style)));
         #endregion
     }
 }
