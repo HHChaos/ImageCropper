@@ -29,7 +29,7 @@ namespace ImageCropper.UWP.Helpers
             using (var memoryRandom = new InMemoryRandomAccessStream())
             {
                 var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, memoryRandom);
-                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore, (uint) writeableBitmap.PixelWidth,
+                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, (uint) writeableBitmap.PixelWidth,
                     (uint) writeableBitmap.PixelHeight, 96.0, 96.0, buffer);
                 encoder.BitmapTransform.Bounds = new BitmapBounds
                 {
@@ -61,7 +61,7 @@ namespace ImageCropper.UWP.Helpers
                 var pixelStream = writeableBitmap.PixelBuffer.AsStream();
                 var pixels = new byte[pixelStream.Length];
                 await pixelStream.ReadAsync(pixels, 0, pixels.Length);
-                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Ignore,
+                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied,
                     (uint)writeableBitmap.PixelWidth,
                     (uint)writeableBitmap.PixelHeight,
                     96.0,
