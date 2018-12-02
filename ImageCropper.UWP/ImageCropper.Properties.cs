@@ -21,7 +21,7 @@ namespace ImageCropper.UWP
             var target = (ImageCropper)d;
             if (e.NewValue is WriteableBitmap bitmap)
             {
-                if (bitmap.PixelWidth > target.MinCroppedSize.Width && bitmap.PixelHeight > target.MinCroppedSize.Height)
+                if (bitmap.PixelWidth > target.MinCropSize.Width && bitmap.PixelHeight > target.MinCropSize.Height)
                 {
                     target.InitImageLayout();
                 }
