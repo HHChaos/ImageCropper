@@ -3,21 +3,20 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:ImageCropper.UWP">
     <Style x:Key="DefaultDragButtonStyle" TargetType="Button">
-        <Setter Property="IsTabStop" Value="False" />
         <Setter Property="Width" Value="20" />
         <Setter Property="Height" Value="20" />
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <CompositeTransform TranslateX="-10" TranslateY="-10" />
+            </Setter.Value>
+        </Setter>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Ellipse
-                        Fill="White"
-                        RenderTransformOrigin="0.5,0.5"
-                        Stroke="Gray"
-                        StrokeThickness="1">
-                        <Ellipse.RenderTransform>
-                            <CompositeTransform TranslateX="-10" TranslateY="-10" />
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
+                        Fill="{StaticResource SystemControlBackgroundChromeWhiteBrush}"
+                        Stroke="{StaticResource SystemControlForegroundChromeHighBrush}"
+                        StrokeThickness="1" />
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -28,8 +27,8 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
-        <Setter Property="Background" Value="Black" />
-        <Setter Property="MarkFill" Value="#cc000000" />
+        <Setter Property="Background" Value="{StaticResource SystemControlBackgroundAltHighBrush}" />
+        <Setter Property="MarkFill" Value="{StaticResource SystemControlBackgroundAltMediumHighBrush}" />
         <Setter Property="Padding" Value="80" />
         <Setter Property="DragButtonStyle" Value="{StaticResource DefaultDragButtonStyle}" />
         <Setter Property="Template">
