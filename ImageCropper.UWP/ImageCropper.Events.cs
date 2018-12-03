@@ -83,8 +83,9 @@ namespace ImageCropper.UWP
         {
             var dragButtom = (FrameworkElement) sender;
             var dragButtomPosition = new Point(Canvas.GetLeft(dragButtom), Canvas.GetTop(dragButtom));
-            var currentPointerPosition = new Point(dragButtomPosition.X + e.Position.X + e.Delta.Translation.X,
-                dragButtomPosition.Y + e.Position.Y + e.Delta.Translation.Y);
+            var currentPointerPosition = new Point(
+                dragButtomPosition.X + e.Position.X + e.Delta.Translation.X - dragButtom.ActualWidth / 2,
+                dragButtomPosition.Y + e.Position.Y + e.Delta.Translation.Y - dragButtom.ActualHeight / 2);
             var safePosition = _restrictedSelectRect.GetSafePoint(currentPointerPosition);
             var safeDiffPoint = new Point(safePosition.X - dragButtomPosition.X, safePosition.Y - dragButtomPosition.Y);
             var tag = dragButtom.Tag;
