@@ -123,7 +123,9 @@
     <Compile Include="DragPoint.cs" />
     <Compile Include="Helpers\RectExtensions.cs" />
     <Compile Include="Helpers\WriteableBitmapExtensions.cs" />
+    <Compile Include="ImageCropper.Constants.cs" />
     <Compile Include="ImageCropper.cs" />
+    <Compile Include="ImageCropper.Events.cs" />
     <Compile Include="ImageCropper.Properties.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\ImageCropper.UWP.rd.xml" />

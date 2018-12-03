@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
@@ -18,38 +14,34 @@ namespace ImageCropper.UWP
 
         private static void OnSourceImageChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var target = (ImageCropper)d;
+            var target = (ImageCropper) d;
             if (e.NewValue is WriteableBitmap bitmap)
             {
                 if (bitmap.PixelWidth > target.MinCropSize.Width && bitmap.PixelHeight > target.MinCropSize.Height)
-                {
                     target.InitImageLayout();
-                }
                 else
-                {
                     throw new ArgumentException("Image size is too small!");
-                }
             }
         }
 
         private static void OnAspectRatioChanged(
             DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var target = (ImageCropper)d;
+            var target = (ImageCropper) d;
             target.UpdateAspectRatio();
         }
 
         private static void OnRoundedCropChanged(
             DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var target = (ImageCropper)d;
+            var target = (ImageCropper) d;
             target.UpdateAspectRatio();
             target.UpdateDragButtonVisibility();
         }
 
         public WriteableBitmap SourceImage
         {
-            get => (WriteableBitmap)GetValue(SourceImageProperty);
+            get => (WriteableBitmap) GetValue(SourceImageProperty);
             set => SetValue(SourceImageProperty, value);
         }
 
@@ -58,28 +50,28 @@ namespace ImageCropper.UWP
         /// </summary>
         public double AspectRatio
         {
-            get => (double)GetValue(AspectRatioProperty);
+            get => (double) GetValue(AspectRatioProperty);
             set => SetValue(AspectRatioProperty, value);
         }
 
         public bool RoundedCrop
         {
-            get => (bool)GetValue(RoundedCropProperty);
+            get => (bool) GetValue(RoundedCropProperty);
             set => SetValue(RoundedCropProperty, value);
         }
 
         public Brush MarkFill
         {
-            get => (Brush)GetValue(MarkFillProperty);
+            get => (Brush) GetValue(MarkFillProperty);
             set => SetValue(MarkFillProperty, value);
         }
 
         /// <summary>
-        /// Gets or sets a value for the style to use for the DragButton of the ImageCropper.
+        ///     Gets or sets a value for the style to use for the DragButton of the ImageCropper.
         /// </summary>
         public Style DragButtonStyle
         {
-            get => (Style)GetValue(DragButtonStyleProperty);
+            get => (Style) GetValue(DragButtonStyleProperty);
             set => SetValue(DragButtonStyleProperty, value);
         }
 
@@ -106,6 +98,7 @@ namespace ImageCropper.UWP
         public static readonly DependencyProperty DragButtonStyleProperty =
             DependencyProperty.Register(nameof(DragButtonStyle), typeof(Style), typeof(ImageCropper),
                 new PropertyMetadata(default(Style)));
+
         #endregion
     }
 }
