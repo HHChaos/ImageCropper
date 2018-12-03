@@ -584,9 +584,24 @@ namespace ImageCropper.UWP
                         _restrictedSelectRect.Y + _restrictedSelectRect.Height - centerY,
                         centerY - _restrictedSelectRect.Y
                     };
-                    var restrictedLength = marginArray.Min() * 2;
+                    var restrictedMaxLength = marginArray.Min() * 2;
                     var maxSelectLength = Math.Max(_endX - _startX, _endY - _startY);
-                    var maxLength = Math.Min(restrictedLength, maxSelectLength);
+                    var maxLength = Math.Min(restrictedMaxLength, maxSelectLength);
+                    var minLength = maxLength * (UsedAspectRatio > 1 ? 1 / UsedAspectRatio : UsedAspectRatio);
+                    var restrictedMinLength = MinCroppedPixelLength * _imageTransform.ScaleX;
+                    if (minLength < restrictedMinLength)
+                    {
+                        if (restrictedMinLength < restrictedMaxLength)
+                        {
+                            var scale = restrictedMinLength / minLength;
+                            maxLength *= scale;
+                        }
+                        else
+                        {
+                            AspectRatio = -1;
+                            return;
+                        }
+                    }
                     var viewRect = new Rect(centerX - maxLength / 2, centerY - maxLength / 2, maxLength, maxLength);
                     var uniformSelectedRect = viewRect.GetUniformRect(UsedAspectRatio);
                     _currentCroppedRect = inverseImageTransform.TransformBounds(uniformSelectedRect);
