@@ -4,7 +4,7 @@
     <!--*-->
     <id>ImageCropper.UWP</id>
     <!--*-->
-    <version>1.1.5</version>
+    <version>1.1.6</version>
     <title>ImageCropper.UWP</title>
     <!--*-->
     <authors>HHChaos</authors>
@@ -18,7 +18,8 @@
     <!--*-->
     <description>UWP ImageCropper</description>
     <!--*-->
-    <releaseNotes>Now added rounded cropper!</releaseNotes>
+    <releaseNotes>Added keyboard support;
+Added Light/Dark theme support.</releaseNotes>
     <copyright>HHChaos Copyright ©  2018</copyright>
     <tags>C# UWP ImageCropper Cropper </tags>
     <dependencies>
