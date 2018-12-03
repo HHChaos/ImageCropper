@@ -25,21 +25,60 @@ namespace ImageCropper.UWP.Helpers
 
         public static bool IsSafePoint(this Rect targetRect, Point point)
         {
-            if (point.X - targetRect.X < -0.01)
+            if (point.X - targetRect.X < -0.001)
                 return false;
-            if (point.X - (targetRect.X + targetRect.Width) > 0.01)
+            if (point.X - (targetRect.X + targetRect.Width) > 0.001)
                 return false;
-            if (point.Y - targetRect.Y < -0.01)
+            if (point.Y - targetRect.Y < -0.001)
                 return false;
-            if (point.Y - (targetRect.Y + targetRect.Height) > 0.01)
+            if (point.Y - (targetRect.Y + targetRect.Height) > 0.001)
                 return false;
             return true;
         }
 
-        public static bool IsSafeRect(Point startPoint, Point endPoint)
+        public static bool IsSafeRect(Point startPoint, Point endPoint, Size minSize)
         {
-            return startPoint.X < endPoint.X
-                && startPoint.Y < endPoint.Y;
+            var checkPoint = new Point(startPoint.X + minSize.Width, startPoint.Y + minSize.Height);
+            return checkPoint.X - endPoint.X < 0.001
+                   && checkPoint.Y - endPoint.Y < 0.001;
+        }
+
+        public static Rect GetSafeRect(Point startPoint, Point endPoint, Size minSize, DragPosition dragPosition)
+        {
+            var checkPoint = new Point(startPoint.X + minSize.Width, startPoint.Y + minSize.Height);
+            switch (dragPosition)
+            {
+                case DragPosition.Top:
+                    if (checkPoint.Y > endPoint.Y) startPoint.Y = endPoint.Y - minSize.Height;
+                    break;
+                case DragPosition.Bottom:
+                    if (checkPoint.Y > endPoint.Y) endPoint.Y = startPoint.Y + minSize.Height;
+                    break;
+                case DragPosition.Left:
+                    if (checkPoint.X > endPoint.X) startPoint.X = endPoint.X - minSize.Width;
+                    break;
+                case DragPosition.Right:
+                    if (checkPoint.X > endPoint.X) endPoint.X = startPoint.X + minSize.Width;
+                    break;
+                case DragPosition.UpperLeft:
+                    if (checkPoint.X > endPoint.X) startPoint.X = endPoint.X - minSize.Width;
+                    if (checkPoint.Y > endPoint.Y) startPoint.Y = endPoint.Y - minSize.Height;
+                    break;
+                case DragPosition.UpperRight:
+                    if (checkPoint.X > endPoint.X) endPoint.X = startPoint.X + minSize.Width;
+                    if (checkPoint.Y > endPoint.Y) startPoint.Y = endPoint.Y - minSize.Height;
+                    break;
+                case DragPosition.LowerLeft:
+                    if (checkPoint.X > endPoint.X) startPoint.X = endPoint.X - minSize.Width;
+                    if (checkPoint.Y > endPoint.Y) endPoint.Y = startPoint.Y + minSize.Height;
+                    break;
+                case DragPosition.LowerRight:
+                    if (checkPoint.X > endPoint.X) endPoint.X = startPoint.X + minSize.Width;
+                    if (checkPoint.Y > endPoint.Y) endPoint.Y = startPoint.Y + minSize.Height;
+                    break;
+            }
+
+            return new Rect(startPoint, endPoint);
         }
 
         public static Rect GetUniformRect(this Rect targetRect, double aspectRatio)

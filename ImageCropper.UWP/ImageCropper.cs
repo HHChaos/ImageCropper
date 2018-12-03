@@ -443,65 +443,40 @@ namespace ImageCropper.UWP
                     break;
             }
 
-            if (!KeepAspectRatio && !RectExtensions.IsSafeRect(startPoint, endPoint))
-                switch (dragPosition)
-                {
-                    case DragPosition.Top:
-                    case DragPosition.Bottom:
-                    case DragPosition.Left:
-                    case DragPosition.Right:
-                        break;
-                    case DragPosition.UpperLeft:
-                        if (startPoint.X > endPoint.X) startPoint.X = endPoint.X - MinSelectSize.Width;
-                        if (startPoint.Y > endPoint.Y) startPoint.Y = endPoint.Y - MinSelectSize.Height;
-                        break;
-                    case DragPosition.UpperRight:
-                        if (startPoint.X > endPoint.X) endPoint.X = startPoint.X + MinSelectSize.Width;
-                        if (startPoint.Y > endPoint.Y) startPoint.Y = endPoint.Y - MinSelectSize.Height;
-                        break;
-                    case DragPosition.LowerLeft:
-                        if (startPoint.X > endPoint.X) startPoint.X = endPoint.X - MinSelectSize.Width;
-                        if (startPoint.Y > endPoint.Y) endPoint.Y = startPoint.Y + MinSelectSize.Height;
-                        break;
-                    case DragPosition.LowerRight:
-                        if (startPoint.X > endPoint.X) endPoint.X = startPoint.X + MinSelectSize.Width;
-                        if (startPoint.Y > endPoint.Y) endPoint.Y = startPoint.Y + MinSelectSize.Height;
-                        break;
-                }
-            if (RectExtensions.IsSafeRect(startPoint, endPoint)
-                && _restrictedSelectRect.IsSafePoint(startPoint)
-                && _restrictedSelectRect.IsSafePoint(endPoint))
+            if (!RectExtensions.IsSafeRect(startPoint, endPoint, MinSelectSize))
             {
-                var selectedRect = new Rect(startPoint, endPoint);
-                selectedRect.Union(CanvasRect);
-                if (selectedRect.X < CanvasRect.X || selectedRect.Y < CanvasRect.Y ||
-                    selectedRect.Width > CanvasRect.Width ||
-                    selectedRect.Height > CanvasRect.Height)
-                {
-                    var inverseImageTransform = _imageTransform.Inverse;
-                    if (inverseImageTransform != null)
-                    {
-                        var croppedRect = inverseImageTransform.TransformBounds(
-                            new Rect(startPoint, endPoint));
-                        croppedRect.Intersect(_restrictedCropRect);
-                        _currentCroppedRect = croppedRect;
-                        var viewportRect = CanvasRect.GetUniformRect(selectedRect.Width / selectedRect.Height);
-                        var viewportImgRect = inverseImageTransform.TransformBounds(selectedRect);
-                        UpdateImageLayoutWithViewport(viewportRect, viewportImgRect);
-                    }
-                }
-                else
-                {
-                    UpdateSelectedRect(startPoint, endPoint);
-                }
+                if (KeepAspectRatio) return;
+                var safeRect = RectExtensions.GetSafeRect(startPoint, endPoint, MinSelectSize, dragPosition);
+                safeRect.Intersect(_restrictedSelectRect);
+                startPoint = new Point(safeRect.X, safeRect.Y);
+                endPoint = new Point(safeRect.X + safeRect.Width, safeRect.Y + safeRect.Height);
+            }
+
+            var isEffectiveRegion = _restrictedSelectRect.IsSafePoint(startPoint) &&
+                                    _restrictedSelectRect.IsSafePoint(endPoint);
+            if (!isEffectiveRegion) return;
+            var selectedRect = new Rect(startPoint, endPoint);
+            selectedRect.Union(CanvasRect);
+            if (selectedRect != CanvasRect)
+            {
+                var inverseImageTransform = _imageTransform.Inverse;
+                if (inverseImageTransform == null) return;
+                var croppedRect = inverseImageTransform.TransformBounds(
+                    new Rect(startPoint, endPoint));
+                croppedRect.Intersect(_restrictedCropRect);
+                _currentCroppedRect = croppedRect;
+                var viewportRect = CanvasRect.GetUniformRect(selectedRect.Width / selectedRect.Height);
+                var viewportImgRect = inverseImageTransform.TransformBounds(selectedRect);
+                UpdateImageLayoutWithViewport(viewportRect, viewportImgRect);
+            }
+            else
+            {
+                UpdateSelectedRect(startPoint, endPoint);
             }
         }
 
         private void UpdateSelectedRect(Point startPoint, Point endPoint)
         {
-            if (endPoint.X - startPoint.X < MinSelectSize.Width ||
-                endPoint.Y - startPoint.Y < MinSelectSize.Height)
-                return;
             _startX = startPoint.X;
             _startY = startPoint.Y;
             _endX = endPoint.X;
