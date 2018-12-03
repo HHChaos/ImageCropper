@@ -1,5 +1,6 @@
 ﻿using System;
 using Windows.Foundation;
+using Windows.System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -9,6 +10,58 @@ namespace ImageCropper.UWP
 {
     public partial class ImageCropper
     {
+        private void DragButton_KeyDown(object sender, KeyRoutedEventArgs e)
+        {
+            var handled = false;
+            var diffPos = new Point();
+            if (e.Key == VirtualKey.Left)
+            {
+                diffPos.X--;
+                handled = true;
+            }
+            else if (e.Key == VirtualKey.Right)
+            {
+                diffPos.X++;
+                handled = true;
+            }
+            else if (e.Key == VirtualKey.Up)
+            {
+                diffPos.Y--;
+                handled = true;
+            }
+            else if (e.Key == VirtualKey.Down)
+            {
+                diffPos.Y++;
+                handled = true;
+            }
+
+            if (handled)
+            {
+                var dragButtom = (FrameworkElement) sender;
+                var tag = dragButtom.Tag;
+                if (tag != null && Enum.TryParse(tag.ToString(), false, out DragPosition dragPosition))
+                    UpdateCroppedRectWithAspectRatio(dragPosition, diffPos);
+                e.Handled = true;
+            }
+        }
+
+        private void DragButton_KeyUp(object sender, KeyRoutedEventArgs e)
+        {
+            var inverseImageTransform = _imageTransform.Inverse;
+            if (inverseImageTransform != null)
+            {
+                var selectedRect = new Rect(new Point(_startX, _startY), new Point(_endX, _endY));
+                var croppedRect = inverseImageTransform.TransformBounds(selectedRect);
+                if (croppedRect.Width > MinCropSize.Width && croppedRect.Height > MinCropSize.Height)
+                {
+                    croppedRect.Intersect(_restrictedCropRect);
+                    _currentCroppedRect = croppedRect;
+                }
+
+                UpdateImageLayout();
+            }
+        }
+
         private void DragButton_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
         {
             var inverseImageTransform = _imageTransform.Inverse;
@@ -35,8 +88,8 @@ namespace ImageCropper.UWP
             var safePosition = _restrictedSelectRect.GetSafePoint(currentPointerPosition);
             var safeDiffPoint = new Point(safePosition.X - dragButtomPosition.X, safePosition.Y - dragButtomPosition.Y);
             var tag = dragButtom.Tag;
-            if (tag != null && Enum.TryParse(tag.ToString(), false, out DragPoint dragPoint))
-                UpdateCroppedRectWithAspectRatio(dragPoint, safeDiffPoint);
+            if (tag != null && Enum.TryParse(tag.ToString(), false, out DragPosition dragPosition))
+                UpdateCroppedRectWithAspectRatio(dragPosition, safeDiffPoint);
         }
 
         private void SourceImage_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)

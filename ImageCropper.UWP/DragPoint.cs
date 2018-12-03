@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ImageCropper.UWP
 {
-    public enum DragPoint
+    public enum DragPosition
     {
         Top,
         Bottom,

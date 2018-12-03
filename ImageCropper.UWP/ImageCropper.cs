@@ -97,6 +97,7 @@ namespace ImageCropper.UWP
 
         protected override void OnApplyTemplate()
         {
+            UnhookEvents();
             _layoutGrid = GetTemplateChild(LayoutGridName) as Grid;
             _imageCanvas = GetTemplateChild(ImageCanvasPartName) as Canvas;
             _sourceImage = GetTemplateChild(SourceImagePartName) as Image;
@@ -109,7 +110,6 @@ namespace ImageCropper.UWP
             _upperRightButton = GetTemplateChild(UpperRightButtonPartName) as Button;
             _lowerLeftButton = GetTemplateChild(LowerLeftButtonPartName) as Button;
             _lowerRigthButton = GetTemplateChild(LowerRightButtonPartName) as Button;
-
             HookUpEvents();
             UpdateDragButtonVisibility();
         }
@@ -130,65 +130,158 @@ namespace ImageCropper.UWP
             if (_topButton != null)
             {
                 _topButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
-                _topButton.Tag = DragPoint.Top;
+                _topButton.Tag = DragPosition.Top;
                 _topButton.ManipulationDelta += DragButton_ManipulationDelta;
                 _topButton.ManipulationCompleted += DragButton_ManipulationCompleted;
+                _topButton.KeyDown += DragButton_KeyDown;
+                _topButton.KeyUp += DragButton_KeyUp;
             }
 
             if (_bottomButton != null)
             {
                 _bottomButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
-                _bottomButton.Tag = DragPoint.Bottom;
+                _bottomButton.Tag = DragPosition.Bottom;
                 _bottomButton.ManipulationDelta += DragButton_ManipulationDelta;
                 _bottomButton.ManipulationCompleted += DragButton_ManipulationCompleted;
+                _bottomButton.KeyDown += DragButton_KeyDown;
+                _bottomButton.KeyUp += DragButton_KeyUp;
             }
 
             if (_leftButton != null)
             {
                 _leftButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
-                _leftButton.Tag = DragPoint.Left;
+                _leftButton.Tag = DragPosition.Left;
                 _leftButton.ManipulationDelta += DragButton_ManipulationDelta;
                 _leftButton.ManipulationCompleted += DragButton_ManipulationCompleted;
+                _leftButton.KeyDown += DragButton_KeyDown;
+                _leftButton.KeyUp += DragButton_KeyUp;
             }
 
             if (_rigthButton != null)
             {
                 _rigthButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
-                _rigthButton.Tag = DragPoint.Right;
+                _rigthButton.Tag = DragPosition.Right;
                 _rigthButton.ManipulationDelta += DragButton_ManipulationDelta;
                 _rigthButton.ManipulationCompleted += DragButton_ManipulationCompleted;
+                _rigthButton.KeyDown += DragButton_KeyDown;
+                _rigthButton.KeyUp += DragButton_KeyUp;
             }
 
             if (_upperLeftButton != null)
             {
                 _upperLeftButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
-                _upperLeftButton.Tag = DragPoint.UpperLeft;
+                _upperLeftButton.Tag = DragPosition.UpperLeft;
                 _upperLeftButton.ManipulationDelta += DragButton_ManipulationDelta;
                 _upperLeftButton.ManipulationCompleted += DragButton_ManipulationCompleted;
+                _upperLeftButton.KeyDown += DragButton_KeyDown;
+                _upperLeftButton.KeyUp += DragButton_KeyUp;
             }
 
             if (_upperRightButton != null)
             {
                 _upperRightButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
-                _upperRightButton.Tag = DragPoint.UpperRight;
+                _upperRightButton.Tag = DragPosition.UpperRight;
                 _upperRightButton.ManipulationDelta += DragButton_ManipulationDelta;
                 _upperRightButton.ManipulationCompleted += DragButton_ManipulationCompleted;
+                _upperRightButton.KeyDown += DragButton_KeyDown;
+                _upperRightButton.KeyUp += DragButton_KeyUp;
             }
 
             if (_lowerLeftButton != null)
             {
                 _lowerLeftButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
-                _lowerLeftButton.Tag = DragPoint.LowerLeft;
+                _lowerLeftButton.Tag = DragPosition.LowerLeft;
                 _lowerLeftButton.ManipulationDelta += DragButton_ManipulationDelta;
                 _lowerLeftButton.ManipulationCompleted += DragButton_ManipulationCompleted;
+                _lowerLeftButton.KeyDown += DragButton_KeyDown;
+                _lowerLeftButton.KeyUp += DragButton_KeyUp;
             }
 
             if (_lowerRigthButton != null)
             {
                 _lowerRigthButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
-                _lowerRigthButton.Tag = DragPoint.LowerRight;
+                _lowerRigthButton.Tag = DragPosition.LowerRight;
                 _lowerRigthButton.ManipulationDelta += DragButton_ManipulationDelta;
                 _lowerRigthButton.ManipulationCompleted += DragButton_ManipulationCompleted;
+                _lowerRigthButton.KeyDown += DragButton_KeyDown;
+                _lowerRigthButton.KeyUp += DragButton_KeyUp;
+            }
+        }
+
+        private void UnhookEvents()
+        {
+            if (_imageCanvas != null)
+                _imageCanvas.SizeChanged -= ImageCanvas_SizeChanged;
+            if (_sourceImage != null)
+            {
+                _sourceImage.RenderTransform = null;
+                _sourceImage.ManipulationDelta -= SourceImage_ManipulationDelta;
+            }
+
+            if (_maskAreaPath != null) _maskAreaPath.Data = null;
+
+            if (_topButton != null)
+            {
+                _topButton.ManipulationDelta -= DragButton_ManipulationDelta;
+                _topButton.ManipulationCompleted -= DragButton_ManipulationCompleted;
+                _topButton.KeyDown -= DragButton_KeyDown;
+                _topButton.KeyUp -= DragButton_KeyUp;
+            }
+
+            if (_bottomButton != null)
+            {
+                _bottomButton.ManipulationDelta -= DragButton_ManipulationDelta;
+                _bottomButton.ManipulationCompleted -= DragButton_ManipulationCompleted;
+                _bottomButton.KeyDown -= DragButton_KeyDown;
+                _bottomButton.KeyUp -= DragButton_KeyUp;
+            }
+
+            if (_leftButton != null)
+            {
+                _leftButton.ManipulationDelta -= DragButton_ManipulationDelta;
+                _leftButton.ManipulationCompleted += DragButton_ManipulationCompleted;
+                _leftButton.KeyDown -= DragButton_KeyDown;
+                _leftButton.KeyUp -= DragButton_KeyUp;
+            }
+
+            if (_rigthButton != null)
+            {
+                _rigthButton.ManipulationDelta -= DragButton_ManipulationDelta;
+                _rigthButton.ManipulationCompleted -= DragButton_ManipulationCompleted;
+                _rigthButton.KeyDown -= DragButton_KeyDown;
+                _rigthButton.KeyUp -= DragButton_KeyUp;
+            }
+
+            if (_upperLeftButton != null)
+            {
+                _upperLeftButton.ManipulationDelta -= DragButton_ManipulationDelta;
+                _upperLeftButton.ManipulationCompleted -= DragButton_ManipulationCompleted;
+                _upperLeftButton.KeyDown -= DragButton_KeyDown;
+                _upperLeftButton.KeyUp -= DragButton_KeyUp;
+            }
+
+            if (_upperRightButton != null)
+            {
+                _upperRightButton.ManipulationDelta -= DragButton_ManipulationDelta;
+                _upperRightButton.ManipulationCompleted -= DragButton_ManipulationCompleted;
+                _upperRightButton.KeyDown -= DragButton_KeyDown;
+                _upperRightButton.KeyUp -= DragButton_KeyUp;
+            }
+
+            if (_lowerLeftButton != null)
+            {
+                _lowerLeftButton.ManipulationDelta -= DragButton_ManipulationDelta;
+                _lowerLeftButton.ManipulationCompleted -= DragButton_ManipulationCompleted;
+                _lowerLeftButton.KeyDown -= DragButton_KeyDown;
+                _lowerLeftButton.KeyUp -= DragButton_KeyUp;
+            }
+
+            if (_lowerRigthButton != null)
+            {
+                _lowerRigthButton.ManipulationDelta -= DragButton_ManipulationDelta;
+                _lowerRigthButton.ManipulationCompleted -= DragButton_ManipulationCompleted;
+                _lowerRigthButton.KeyDown -= DragButton_KeyDown;
+                _lowerRigthButton.KeyUp -= DragButton_KeyUp;
             }
         }
 
@@ -249,7 +342,7 @@ namespace ImageCropper.UWP
             UpdateSelectedRect(startPoint, endPoint);
         }
 
-        private void UpdateCroppedRectWithAspectRatio(DragPoint dragPoint, Point diffPos)
+        private void UpdateCroppedRectWithAspectRatio(DragPosition dragPosition, Point diffPos)
         {
             double radian = 0d, diffPointRadian = 0d, effectiveLength = 0d;
             if (KeepAspectRatio)
@@ -260,9 +353,9 @@ namespace ImageCropper.UWP
 
             var startPoint = new Point(_startX, _startY);
             var endPoint = new Point(_endX, _endY);
-            switch (dragPoint)
+            switch (dragPosition)
             {
-                case DragPoint.Top:
+                case DragPosition.Top:
                     startPoint.Y += diffPos.Y;
                     if (KeepAspectRatio)
                     {
@@ -272,7 +365,7 @@ namespace ImageCropper.UWP
                     }
 
                     break;
-                case DragPoint.Bottom:
+                case DragPosition.Bottom:
                     endPoint.Y += diffPos.Y;
                     if (KeepAspectRatio)
                     {
@@ -282,7 +375,7 @@ namespace ImageCropper.UWP
                     }
 
                     break;
-                case DragPoint.Left:
+                case DragPosition.Left:
                     startPoint.X += diffPos.X;
                     if (KeepAspectRatio)
                     {
@@ -292,7 +385,7 @@ namespace ImageCropper.UWP
                     }
 
                     break;
-                case DragPoint.Right:
+                case DragPosition.Right:
                     endPoint.X += diffPos.X;
                     if (KeepAspectRatio)
                     {
@@ -302,7 +395,7 @@ namespace ImageCropper.UWP
                     }
 
                     break;
-                case DragPoint.UpperLeft:
+                case DragPosition.UpperLeft:
                     if (KeepAspectRatio)
                     {
                         effectiveLength = diffPos.Y / Math.Cos(diffPointRadian) * Math.Cos(diffPointRadian - radian);
@@ -313,7 +406,7 @@ namespace ImageCropper.UWP
                     startPoint.X += diffPos.X;
                     startPoint.Y += diffPos.Y;
                     break;
-                case DragPoint.UpperRight:
+                case DragPosition.UpperRight:
                     if (KeepAspectRatio)
                     {
                         diffPointRadian = -diffPointRadian;
@@ -325,7 +418,7 @@ namespace ImageCropper.UWP
                     endPoint.X += diffPos.X;
                     startPoint.Y += diffPos.Y;
                     break;
-                case DragPoint.LowerLeft:
+                case DragPosition.LowerLeft:
                     if (KeepAspectRatio)
                     {
                         diffPointRadian = -diffPointRadian;
@@ -337,7 +430,7 @@ namespace ImageCropper.UWP
                     startPoint.X += diffPos.X;
                     endPoint.Y += diffPos.Y;
                     break;
-                case DragPoint.LowerRight:
+                case DragPosition.LowerRight:
                     if (KeepAspectRatio)
                     {
                         effectiveLength = diffPos.Y / Math.Cos(diffPointRadian) * Math.Cos(diffPointRadian - radian);
@@ -351,26 +444,26 @@ namespace ImageCropper.UWP
             }
 
             if (!KeepAspectRatio && !RectExtensions.IsSafeRect(startPoint, endPoint))
-                switch (dragPoint)
+                switch (dragPosition)
                 {
-                    case DragPoint.Top:
-                    case DragPoint.Bottom:
-                    case DragPoint.Left:
-                    case DragPoint.Right:
+                    case DragPosition.Top:
+                    case DragPosition.Bottom:
+                    case DragPosition.Left:
+                    case DragPosition.Right:
                         break;
-                    case DragPoint.UpperLeft:
+                    case DragPosition.UpperLeft:
                         if (startPoint.X > endPoint.X) startPoint.X = endPoint.X - MinSelectSize.Width;
                         if (startPoint.Y > endPoint.Y) startPoint.Y = endPoint.Y - MinSelectSize.Height;
                         break;
-                    case DragPoint.UpperRight:
+                    case DragPosition.UpperRight:
                         if (startPoint.X > endPoint.X) endPoint.X = startPoint.X + MinSelectSize.Width;
                         if (startPoint.Y > endPoint.Y) startPoint.Y = endPoint.Y - MinSelectSize.Height;
                         break;
-                    case DragPoint.LowerLeft:
+                    case DragPosition.LowerLeft:
                         if (startPoint.X > endPoint.X) startPoint.X = endPoint.X - MinSelectSize.Width;
                         if (startPoint.Y > endPoint.Y) endPoint.Y = startPoint.Y + MinSelectSize.Height;
                         break;
-                    case DragPoint.LowerRight:
+                    case DragPosition.LowerRight:
                         if (startPoint.X > endPoint.X) endPoint.X = startPoint.X + MinSelectSize.Width;
                         if (startPoint.Y > endPoint.Y) endPoint.Y = startPoint.Y + MinSelectSize.Height;
                         break;
