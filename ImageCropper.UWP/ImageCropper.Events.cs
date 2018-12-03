@@ -104,7 +104,7 @@ namespace ImageCropper.UWP
                 if (_restrictedSelectRect.IsSafePoint(startPoint) && _restrictedSelectRect.IsSafePoint(endPoint))
                 {
                     var selectedRect = new Rect(startPoint, endPoint);
-                    if (selectedRect.Width < MinSelectSize.Width || selectedRect.Height < MinSelectSize.Height)
+                    if ((selectedRect.Width - MinSelectSize.Width) < -0.001 || (selectedRect.Height - MinSelectSize.Height) < -0.001)
                         return;
                     var movedRect = inverseImageTransform.TransformBounds(selectedRect);
                     movedRect.Intersect(_restrictedCropRect);

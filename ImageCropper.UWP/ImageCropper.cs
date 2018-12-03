@@ -445,11 +445,22 @@ namespace ImageCropper.UWP
 
             if (!RectExtensions.IsSafeRect(startPoint, endPoint, MinSelectSize))
             {
-                if (KeepAspectRatio) return;
-                var safeRect = RectExtensions.GetSafeRect(startPoint, endPoint, MinSelectSize, dragPosition);
-                safeRect.Intersect(_restrictedSelectRect);
-                startPoint = new Point(safeRect.X, safeRect.Y);
-                endPoint = new Point(safeRect.X + safeRect.Width, safeRect.Y + safeRect.Height);
+                if (KeepAspectRatio)
+                {
+                    if ((endPoint.Y - startPoint.Y) < (_endY - _startY) ||
+                        (endPoint.X - startPoint.X) < (_endX - _startX))
+                    {
+                        return;
+                    }
+
+                }
+                else
+                {
+                    var safeRect = RectExtensions.GetSafeRect(startPoint, endPoint, MinSelectSize, dragPosition);
+                    safeRect.Intersect(_restrictedSelectRect);
+                    startPoint = new Point(safeRect.X, safeRect.Y);
+                    endPoint = new Point(safeRect.X + safeRect.Width, safeRect.Y + safeRect.Height);
+                }
             }
 
             var isEffectiveRegion = _restrictedSelectRect.IsSafePoint(startPoint) &&
@@ -577,33 +588,42 @@ namespace ImageCropper.UWP
                 {
                     var centerX = (_endX - _startX) / 2 + _startX;
                     var centerY = (_endY - _startY) / 2 + _startY;
-                    var marginArray = new double[4]
-                    {
-                        _restrictedSelectRect.X + _restrictedSelectRect.Width - centerX,
-                        centerX - _restrictedSelectRect.X,
-                        _restrictedSelectRect.Y + _restrictedSelectRect.Height - centerY,
-                        centerY - _restrictedSelectRect.Y
-                    };
-                    var restrictedMaxLength = marginArray.Min() * 2;
-                    var maxSelectLength = Math.Max(_endX - _startX, _endY - _startY);
-                    var maxLength = Math.Min(restrictedMaxLength, maxSelectLength);
-                    var minLength = maxLength * (UsedAspectRatio > 1 ? 1 / UsedAspectRatio : UsedAspectRatio);
+                    var restrictedMaxLength = Math.Min(_restrictedSelectRect.Width, _restrictedSelectRect.Height);
                     var restrictedMinLength = MinCroppedPixelLength * _imageTransform.ScaleX;
-                    if (minLength < restrictedMinLength)
+                    var maxSelectedLength = Math.Max(_endX - _startX, _endY - _startY);
+                    var viewRect = new Rect(centerX - maxSelectedLength / 2, centerY - maxSelectedLength / 2, maxSelectedLength, maxSelectedLength);
+                    var uniformSelectedRect = viewRect.GetUniformRect(UsedAspectRatio);
+                    if (uniformSelectedRect.Width > _restrictedSelectRect.Width || uniformSelectedRect.Height > _restrictedSelectRect.Height)
                     {
-                        if (restrictedMinLength < restrictedMaxLength)
-                        {
-                            var scale = restrictedMinLength / minLength;
-                            maxLength *= scale;
-                        }
-                        else
+                        uniformSelectedRect = _restrictedSelectRect.GetUniformRect(UsedAspectRatio);
+                    }
+                    if (uniformSelectedRect.Width < restrictedMinLength || uniformSelectedRect.Height < restrictedMinLength)
+                    {
+                        var scale = restrictedMinLength / Math.Min(uniformSelectedRect.Width, uniformSelectedRect.Height);
+                        uniformSelectedRect.Width *= scale;
+                        uniformSelectedRect.Height *= scale;
+                        if (uniformSelectedRect.Width > _restrictedSelectRect.Width || uniformSelectedRect.Height > _restrictedSelectRect.Height)
                         {
                             AspectRatio = -1;
                             return;
                         }
                     }
-                    var viewRect = new Rect(centerX - maxLength / 2, centerY - maxLength / 2, maxLength, maxLength);
-                    var uniformSelectedRect = viewRect.GetUniformRect(UsedAspectRatio);
+                    if (_restrictedSelectRect.X > uniformSelectedRect.X)
+                    {
+                        uniformSelectedRect.X += _restrictedSelectRect.X - uniformSelectedRect.X;
+                    }
+                    if (_restrictedSelectRect.Y > uniformSelectedRect.Y)
+                    {
+                        uniformSelectedRect.Y += _restrictedSelectRect.Y - uniformSelectedRect.Y;
+                    }
+                    if ((_restrictedSelectRect.X + _restrictedSelectRect.Width) < (uniformSelectedRect.X + uniformSelectedRect.Width))
+                    {
+                        uniformSelectedRect.X += (_restrictedSelectRect.X + _restrictedSelectRect.Width) - (uniformSelectedRect.X + uniformSelectedRect.Width);
+                    }
+                    if ((_restrictedSelectRect.Y + _restrictedSelectRect.Height) < (uniformSelectedRect.Y + uniformSelectedRect.Height))
+                    {
+                        uniformSelectedRect.Y += (_restrictedSelectRect.Y + _restrictedSelectRect.Height) - (uniformSelectedRect.Y + uniformSelectedRect.Height);
+                    }
                     _currentCroppedRect = inverseImageTransform.TransformBounds(uniformSelectedRect);
                     UpdateImageLayout();
                 }
