@@ -28,7 +28,7 @@
         <Setter Property="VerticalAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
         <Setter Property="Background" Value="{ThemeResource SystemControlBackgroundAltHighBrush}" />
-        <Setter Property="MaskFill" Value="{ThemeResource SystemControlBackgroundAltMediumHighBrush}" />
+        <Setter Property="Mask" Value="{ThemeResource SystemControlBackgroundAltMediumHighBrush}" />
         <Setter Property="Padding" Value="80" />
         <Setter Property="PrimaryControlButtonStyle" Value="{ThemeResource DefaultControlButtonStyle}" />
         <Setter Property="SecondaryControlButtonStyle" Value="{ThemeResource DefaultControlButtonStyle}" />
@@ -46,7 +46,7 @@
                             VerticalAlignment="{TemplateBinding VerticalAlignment}">
                             <Canvas x:Name="PART_ImageCanvas">
                                 <Image x:Name="PART_SourceImage" Source="{TemplateBinding SourceImage}" />
-                                <Path x:Name="PART_MaskAreaPath" Fill="{TemplateBinding MaskFill}" />
+                                <Path x:Name="PART_MaskAreaPath" Fill="{TemplateBinding Mask}" />
                                 <Button x:Name="PART_TopButton" Style="{TemplateBinding SecondaryControlButtonStyle}" />
                                 <Button x:Name="PART_BottomButton" Style="{TemplateBinding SecondaryControlButtonStyle}" />
                                 <Button x:Name="PART_LeftButton" Style="{TemplateBinding SecondaryControlButtonStyle}" />

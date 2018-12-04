@@ -11,10 +11,12 @@ using Windows.UI.Xaml.Media.Imaging;
 using Windows.UI.Xaml.Shapes;
 using ImageCropper.UWP.Helpers;
 
-// The Templated Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234235
 
 namespace ImageCropper.UWP
 {
+    /// <summary>
+    /// The <see cref="ImageCropper"/> control allows user to crop image freely.
+    /// </summary>
     [TemplatePart(Name = LayoutGridName, Type = typeof(Grid))]
     [TemplatePart(Name = ImageCanvasPartName, Type = typeof(Canvas))]
     [TemplatePart(Name = SourceImagePartName, Type = typeof(Image))]
@@ -51,6 +53,9 @@ namespace ImageCropper.UWP
         private Rect _restrictedCropRect = Rect.Empty;
         private Rect _restrictedSelectRect = Rect.Empty;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ImageCropper"/> class.
+        /// </summary>
         public ImageCropper()
         {
             DefaultStyleKey = typeof(ImageCropper);
@@ -58,8 +63,11 @@ namespace ImageCropper.UWP
 
         private Rect CanvasRect => new Rect(0, 0, _imageCanvas.ActualWidth, _imageCanvas.ActualHeight);
         private bool KeepAspectRatio => UsedAspectRatio > 0;
-        private double UsedAspectRatio => RoundedCrop ? 1 : AspectRatio;
+        private double UsedAspectRatio => CircularCrop ? 1 : AspectRatio;
 
+        /// <summary>
+        /// Gets the minimum cropped size.
+        /// </summary>
         private Size MinCropSize
         {
             get
@@ -74,6 +82,9 @@ namespace ImageCropper.UWP
             }
         }
 
+        /// <summary>
+        /// Gets the minimum selectable size.
+        /// </summary>
         private Size MinSelectSize
         {
             get
@@ -95,6 +106,7 @@ namespace ImageCropper.UWP
             }
         }
 
+        /// <inheritdoc/>
         protected override void OnApplyTemplate()
         {
             UnhookEvents();
@@ -285,6 +297,11 @@ namespace ImageCropper.UWP
             }
         }
 
+        /// <summary>
+        /// Load an image from a file.
+        /// </summary>
+        /// <param name="imageFile"></param>
+        /// <returns></returns>
         public async Task LoadImageFromFile(StorageFile imageFile)
         {
             var writeableBitmap = new WriteableBitmap(1, 1);
@@ -296,6 +313,10 @@ namespace ImageCropper.UWP
             SourceImage = writeableBitmap;
         }
 
+        /// <summary>
+        /// Gets the cropped image.
+        /// </summary>
+        /// <returns>WriteableBitmap</returns>
         public async Task<WriteableBitmap> GetCroppedBitmapAsync()
         {
             if (SourceImage == null)
@@ -303,6 +324,12 @@ namespace ImageCropper.UWP
             return await SourceImage.GetCroppedBitmapAsync(_currentCroppedRect);
         }
 
+        /// <summary>
+        /// Save the cropped image to a file.
+        /// </summary>
+        /// <param name="imageFile">The target file.</param>
+        /// <param name="encoderId">The encoderId of BitmapEncoder</param>
+        /// <returns></returns>
         public async Task SaveCroppedBitmapAsync(StorageFile imageFile, Guid encoderId)
         {
             if (SourceImage == null)
@@ -313,6 +340,9 @@ namespace ImageCropper.UWP
 
         #region UpdateCropperLayout
 
+        /// <summary>
+        /// Initializes image source transform.
+        /// </summary>
         private void InitImageLayout()
         {
             _restrictedCropRect = new Rect(0, 0, SourceImage.PixelWidth, SourceImage.PixelHeight);
@@ -322,18 +352,26 @@ namespace ImageCropper.UWP
             UpdateControlButtonVisibility();
         }
 
+        /// <summary>
+        /// Update image source transform.
+        /// </summary>
         private void UpdateImageLayout()
         {
             var uniformSelectedRect = CanvasRect.GetUniformRect(_currentCroppedRect.Width / _currentCroppedRect.Height);
             UpdateImageLayoutWithViewport(uniformSelectedRect, _currentCroppedRect);
         }
 
-        private void UpdateImageLayoutWithViewport(Rect viewport, Rect viewportImgRect)
+        /// <summary>
+        /// Update image source transform.
+        /// </summary>
+        /// <param name="viewport">Viewport</param>
+        /// <param name="viewportImageRect"> The real image area of viewport.</param>
+        private void UpdateImageLayoutWithViewport(Rect viewport, Rect viewportImageRect)
         {
-            var imageScale = viewport.Width / viewportImgRect.Width;
+            var imageScale = viewport.Width / viewportImageRect.Width;
             _imageTransform.ScaleX = _imageTransform.ScaleY = imageScale;
-            _imageTransform.TranslateX = viewport.X - viewportImgRect.X * imageScale;
-            _imageTransform.TranslateY = viewport.Y - viewportImgRect.Y * imageScale;
+            _imageTransform.TranslateX = viewport.X - viewportImageRect.X * imageScale;
+            _imageTransform.TranslateY = viewport.Y - viewportImageRect.Y * imageScale;
             var selectedRect = _imageTransform.TransformBounds(_currentCroppedRect);
             _restrictedSelectRect = _imageTransform.TransformBounds(_restrictedCropRect);
             var startPoint = _restrictedSelectRect.GetSafePoint(new Point(selectedRect.X, selectedRect.Y));
@@ -342,6 +380,11 @@ namespace ImageCropper.UWP
             UpdateSelectedRect(startPoint, endPoint);
         }
 
+        /// <summary>
+        /// Update cropped area.
+        /// </summary>
+        /// <param name="dragPosition">The control point</param>
+        /// <param name="diffPos">Position offset</param>
         private void UpdateCroppedRectWithAspectRatio(DragPosition dragPosition, Point diffPos)
         {
             double radian = 0d, diffPointRadian = 0d, effectiveLength = 0d;
@@ -486,6 +529,11 @@ namespace ImageCropper.UWP
             }
         }
 
+        /// <summary>
+        /// Update selection area.
+        /// </summary>
+        /// <param name="startPoint">The point on the upper left corner.</param>
+        /// <param name="endPoint">The point on the lower right corner.</param>
         private void UpdateSelectedRect(Point startPoint, Point endPoint)
         {
             _startX = startPoint.X;
@@ -545,6 +593,9 @@ namespace ImageCropper.UWP
             UpdateMaskArea();
         }
 
+        /// <summary>
+        /// Update the mask layer.
+        /// </summary>
         private void UpdateMaskArea()
         {
             _maskAreaGeometryGroup.Children.Clear();
@@ -553,7 +604,7 @@ namespace ImageCropper.UWP
                 Rect = new Rect(-_layoutGrid.Padding.Left, -_layoutGrid.Padding.Top, _layoutGrid.ActualWidth,
                     _layoutGrid.ActualHeight)
             });
-            if (RoundedCrop)
+            if (CircularCrop)
             {
                 var centerX = (_endX - _startX) / 2 + _startX;
                 var centerY = (_endY - _startY) / 2 + _startY;
@@ -579,6 +630,9 @@ namespace ImageCropper.UWP
             };
         }
 
+        /// <summary>
+        /// Update image aspect ratio.
+        /// </summary>
         private void UpdateAspectRatio()
         {
             if (KeepAspectRatio && SourceImage != null)
@@ -629,10 +683,15 @@ namespace ImageCropper.UWP
             }
         }
 
+        /// <summary>
+        /// Update the visibility of the control button.
+        /// </summary>
         private void UpdateControlButtonVisibility()
         {
-            var cornerBtnVisibility = RoundedCrop ? Visibility.Collapsed : Visibility.Visible;
-            var otherBtnVisibility = RoundedCrop ? Visibility.Visible : SecondaryControlButtonVisibility;
+            var cornerBtnVisibility = CircularCrop ? Visibility.Collapsed : Visibility.Visible;
+            var otherBtnVisibility = (CircularCrop || IsSecondaryControlButtonVisible)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
             if (SourceImage == null)
                 cornerBtnVisibility = otherBtnVisibility = Visibility.Collapsed;
 

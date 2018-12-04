@@ -51,7 +51,7 @@ namespace ImageCropper.UWP.Helpers
         /// </summary>
         /// <param name="writeableBitmap"></param>
         /// <param name="imageFile"></param>
-        /// <param name="encoderId">BitmapEncoder encoderId</param>
+        /// <param name="encoderId">The encoderId of BitmapEncoder</param>
         /// <returns></returns>
         public static async Task RenderToFile(this WriteableBitmap writeableBitmap, StorageFile imageFile, Guid encoderId)
         {

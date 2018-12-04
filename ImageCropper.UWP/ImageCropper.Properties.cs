@@ -7,7 +7,13 @@ namespace ImageCropper.UWP
 {
     public partial class ImageCropper
     {
+        /// <summary>
+        /// Gets or sets the minimum cropped length(in pixel).
+        /// </summary>
         public double MinCroppedPixelLength { get; set; } = 40;
+        /// <summary>
+        /// Gets or sets the minimum selectable length.
+        /// </summary>
         public double MinSelectedLength { get; set; } = 40;
 
         #region DependencyProperty Fields
@@ -20,7 +26,7 @@ namespace ImageCropper.UWP
                 if (bitmap.PixelWidth > target.MinCropSize.Width && bitmap.PixelHeight > target.MinCropSize.Height)
                     target.InitImageLayout();
                 else
-                    throw new ArgumentException("Image size is too small!");
+                    throw new ArgumentException("The resolution of the image is too small!");
             }
         }
 
@@ -31,7 +37,7 @@ namespace ImageCropper.UWP
             target.UpdateAspectRatio();
         }
 
-        private static void OnRoundedCropChanged(
+        private static void OnCircularCropChanged(
             DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var target = (ImageCropper) d;
@@ -40,13 +46,16 @@ namespace ImageCropper.UWP
             target.UpdateMaskArea();
         }
 
-        private static void OnSecondaryControlButtonVisibilityChanged(
+        private static void OnIsSecondaryControlButtonVisibleChanged(
             DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var target = (ImageCropper) d;
             target.UpdateControlButtonVisibility();
         }
 
+        /// <summary>
+        ///  Gets or sets the source of the cropped image.
+        /// </summary>
         public WriteableBitmap SourceImage
         {
             get => (WriteableBitmap) GetValue(SourceImageProperty);
@@ -54,7 +63,7 @@ namespace ImageCropper.UWP
         }
 
         /// <summary>
-        ///     Image aspect ratio，the default value is -1.
+        /// Gets or sets the aspect ratio of the cropped image，the default value is -1.
         /// </summary>
         public double AspectRatio
         {
@@ -62,20 +71,26 @@ namespace ImageCropper.UWP
             set => SetValue(AspectRatioProperty, value);
         }
 
-        public bool RoundedCrop
+        /// <summary>
+        /// Gets or sets whether to use a circular ImageCropper.
+        /// </summary>
+        public bool CircularCrop
         {
-            get => (bool) GetValue(RoundedCropProperty);
-            set => SetValue(RoundedCropProperty, value);
-        }
-
-        public Brush MaskFill
-        {
-            get => (Brush) GetValue(MaskFillProperty);
-            set => SetValue(MaskFillProperty, value);
+            get => (bool) GetValue(CircularCropProperty);
+            set => SetValue(CircularCropProperty, value);
         }
 
         /// <summary>
-        ///     Gets or sets a value for the style to use for the PrimaryControlButton of the ImageCropper.
+        /// Gets or sets the mask on the cropped image.
+        /// </summary>
+        public Brush Mask
+        {
+            get => (Brush) GetValue(MaskProperty);
+            set => SetValue(MaskProperty, value);
+        }
+
+        /// <summary>
+        /// Gets or sets a value for the style to use for the primary control buttons of the ImageCropper.
         /// </summary>
         public Style PrimaryControlButtonStyle
         {
@@ -84,7 +99,7 @@ namespace ImageCropper.UWP
         }
 
         /// <summary>
-        ///     Gets or sets a value for the style to use for the SecondaryControlButtonStyle of the ImageCropper.
+        /// Gets or sets a value for the style to use for the secondary control buttons of the ImageCropper.
         /// </summary>
         public Style SecondaryControlButtonStyle
         {
@@ -92,44 +107,64 @@ namespace ImageCropper.UWP
             set => SetValue(SecondaryControlButtonStyleProperty, value);
         }
 
-        public Visibility SecondaryControlButtonVisibility
+        /// <summary>
+        /// Gets or sets the visibility of secondary control buttons.
+        /// </summary>
+        public bool IsSecondaryControlButtonVisible
         {
-            get => (Visibility) GetValue(SecondaryControlButtonVisibilityProperty);
-            set => SetValue(SecondaryControlButtonVisibilityProperty, value);
+            get => (bool) GetValue(IsSecondaryControlButtonVisibleProperty);
+            set => SetValue(IsSecondaryControlButtonVisibleProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for AspectRatio.  This enables animation, styling, binding, etc...
+        /// <summary>
+        /// Identifies the <see cref="AspectRatio"/> dependency property.
+        /// </summary>
         public static readonly DependencyProperty AspectRatioProperty =
             DependencyProperty.Register(nameof(AspectRatio), typeof(double), typeof(ImageCropper),
                 new PropertyMetadata(-1d, OnAspectRatioChanged));
 
-        // Using a DependencyProperty as the backing store for SourceImage.  This enables animation, styling, binding, etc...
+        /// <summary>
+        /// Identifies the <see cref="SourceImage"/> dependency property.
+        /// </summary>
         public static readonly DependencyProperty SourceImageProperty =
             DependencyProperty.Register(nameof(SourceImage), typeof(WriteableBitmap), typeof(ImageCropper),
                 new PropertyMetadata(null, OnSourceImageChanged));
 
-        // Using a DependencyProperty as the backing store for RoundedCrop.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty RoundedCropProperty =
-            DependencyProperty.Register(nameof(RoundedCrop), typeof(bool), typeof(ImageCropper),
-                new PropertyMetadata(false, OnRoundedCropChanged));
+        /// <summary>
+        /// Identifies the <see cref="CircularCrop"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty CircularCropProperty =
+            DependencyProperty.Register(nameof(CircularCrop), typeof(bool), typeof(ImageCropper),
+                new PropertyMetadata(false, OnCircularCropChanged));
 
-        // Using a DependencyProperty as the backing store for MaskFill.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MaskFillProperty =
-            DependencyProperty.Register(nameof(MaskFill), typeof(Brush), typeof(ImageCropper),
+        /// <summary>
+        /// Identifies the <see cref="Mask"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty MaskProperty =
+            DependencyProperty.Register(nameof(Mask), typeof(Brush), typeof(ImageCropper),
                 new PropertyMetadata(default(Brush)));
 
+        /// <summary>
+        /// Identifies the <see cref="PrimaryControlButtonStyle"/> dependency property.
+        /// </summary>
         public static readonly DependencyProperty PrimaryControlButtonStyleProperty =
             DependencyProperty.Register(nameof(PrimaryControlButtonStyle), typeof(Style), typeof(ImageCropper),
                 new PropertyMetadata(default(Style)));
 
+        /// <summary>
+        /// Identifies the <see cref="SecondaryControlButtonStyle"/> dependency property.
+        /// </summary>
         public static readonly DependencyProperty SecondaryControlButtonStyleProperty =
             DependencyProperty.Register(nameof(SecondaryControlButtonStyle), typeof(Style), typeof(ImageCropper),
                 new PropertyMetadata(default(Style)));
 
-        public static readonly DependencyProperty SecondaryControlButtonVisibilityProperty =
-            DependencyProperty.Register(nameof(SecondaryControlButtonVisibility), typeof(Visibility),
+        /// <summary>
+        /// Identifies the <see cref="IsSecondaryControlButtonVisible"/> dependency property.
+        /// </summary>
+        public static readonly DependencyProperty IsSecondaryControlButtonVisibleProperty =
+            DependencyProperty.Register(nameof(IsSecondaryControlButtonVisible), typeof(bool),
                 typeof(ImageCropper),
-                new PropertyMetadata(default(Visibility), OnSecondaryControlButtonVisibilityChanged));
+                new PropertyMetadata(true, OnIsSecondaryControlButtonVisibleChanged));
 
         #endregion
     }

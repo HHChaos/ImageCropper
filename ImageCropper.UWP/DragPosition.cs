@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace ImageCropper.UWP
 {
+    /// <summary>
+    /// Control point enumeration.
+    /// </summary>
     public enum DragPosition
     {
         Top,

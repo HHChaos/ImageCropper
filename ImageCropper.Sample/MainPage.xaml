@@ -22,14 +22,13 @@
                 Click="PickImgButton_Click"
                 Content="Pick Image" />
             <ToggleSwitch
-                IsOn="{x:Bind ImageCropper.RoundedCrop, Mode=TwoWay}"
-                OffContent="RoundedCrop Off"
-                OnContent="RoundedCrop On" />
+                IsOn="{x:Bind ImageCropper.CircularCrop, Mode=TwoWay}"
+                OffContent="CircularCrop Off"
+                OnContent="CircularCrop On" />
             <ToggleSwitch
-                IsOn="True"
-                x:Name="ShowSecondaryControlButtonToggleSwitch"
+                IsOn="{x:Bind ImageCropper.IsSecondaryControlButtonVisible, Mode=TwoWay}"
                 OffContent="Hide SecondaryControlButton"
-                OnContent="Show SecondaryControlButton" Toggled="ShowSecondaryControlButtonToggleSwitch_Toggled" />
+                OnContent="Show SecondaryControlButton"/>
             <Button
                 Click="AspectRatioButton_Click"
                 Content="no aspect ratio"
