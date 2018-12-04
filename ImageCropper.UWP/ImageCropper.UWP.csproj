@@ -121,8 +121,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DragPosition.cs" />
-    <Compile Include="Helpers\RectExtensions.cs" />
-    <Compile Include="Helpers\WriteableBitmapExtensions.cs" />
+    <Compile Include="Extensions\RectExtensions.cs" />
+    <Compile Include="Extensions\WriteableBitmapExtensions.cs" />
     <Compile Include="ImageCropper.Constants.cs" />
     <Compile Include="ImageCropper.cs" />
     <Compile Include="ImageCropper.Events.cs" />

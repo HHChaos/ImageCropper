@@ -11,10 +11,19 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
 
-namespace ImageCropper.UWP.Helpers
+namespace ImageCropper.UWP.Extensions
 {
-    public static class WriteableBitmapExtensions
+    /// <summary>
+    /// Provides some extension methods for WriteableBitmap.
+    /// </summary>
+    internal static class WriteableBitmapExtensions
     {
+        /// <summary>
+        /// Gets the cropped image.
+        /// </summary>
+        /// <param name="writeableBitmap">The source image.</param>
+        /// <param name="croppedRect">The cropped area.</param>
+        /// <returns></returns>
         public static async Task<WriteableBitmap> GetCroppedBitmapAsync(this WriteableBitmap writeableBitmap,
             Rect croppedRect)
         {
@@ -47,10 +56,10 @@ namespace ImageCropper.UWP.Helpers
         }
 
         /// <summary>
-        /// 
+        /// Save the cropped image to a file.
         /// </summary>
-        /// <param name="writeableBitmap"></param>
-        /// <param name="imageFile"></param>
+        /// <param name="writeableBitmap">The source image.</param>
+        /// <param name="imageFile">The target file.</param>
         /// <param name="encoderId">The encoderId of BitmapEncoder</param>
         /// <returns></returns>
         public static async Task RenderToFile(this WriteableBitmap writeableBitmap, StorageFile imageFile, Guid encoderId)

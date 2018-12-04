@@ -13,11 +13,11 @@ namespace ImageCropper.UWP
         /// </summary>
         private const string LayoutGridName = "PART_LayoutGrid";
         /// <summary>
-        /// Key of the Canvas that contains the image.
+        /// Key of the Canvas that contains the image and control buttons.
         /// </summary>
         private const string ImageCanvasPartName = "PART_ImageCanvas";
         /// <summary>
-        /// Key of the Image Control inside the ImageCropper Control
+        /// Key of the Image Control inside the ImageCropper Control.
         /// </summary>
         private const string SourceImagePartName = "PART_SourceImage";
         /// <summary>
@@ -25,35 +25,35 @@ namespace ImageCropper.UWP
         /// </summary>
         private const string MaskAreaPathPartName = "PART_MaskAreaPath";
         /// <summary>
-        /// Key of the UI Element that on the top.
+        /// Key of the button that on the top.
         /// </summary>
         private const string TopButtonPartName = "PART_TopButton";
         /// <summary>
-        /// Key of the UI Element on the bottom.
+        /// Key of the button on the bottom.
         /// </summary>
         private const string BottomButtonPartName = "PART_BottomButton";
         /// <summary>
-        /// Key of the UI Element on the left.
+        /// Key of the button on the left.
         /// </summary>
         private const string LeftButtonPartName = "PART_LeftButton";
         /// <summary>
-        /// Key of the UI Element on the right.
+        /// Key of the button on the right.
         /// </summary>
         private const string RightButtonPartName = "PART_RightButton";
         /// <summary>
-        /// Key of the UI Element that on the upper left.
+        /// Key of the button that on the upper left.
         /// </summary>
         private const string UpperLeftButtonPartName = "PART_UpperLeftButton";
         /// <summary>
-        /// Key of the UI Element that on the upper right.
+        /// Key of the button that on the upper right.
         /// </summary>
         private const string UpperRightButtonPartName = "PART_UpperRightButton";
         /// <summary>
-        /// Key of the UI Element that on the lower left.
+        /// Key of the button that on the lower left.
         /// </summary>
         private const string LowerLeftButtonPartName = "PART_LowerLeftButton";
         /// <summary>
-        /// Key of the UI Element that on the lower right.
+        /// Key of the button that on the lower right.
         /// </summary>
         private const string LowerRightButtonPartName = "PART_LowerRightButton";
     }

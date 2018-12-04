@@ -5,10 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
 
-namespace ImageCropper.UWP.Helpers
+namespace ImageCropper.UWP.Extensions
 {
-    public static class RectExtensions
+    /// <summary>
+    /// Provides some extension methods for Rect.
+    /// </summary>
+    internal static class RectExtensions
     {
+        /// <summary>
+        /// Gets the closest point in the rectangle to a given point.
+        /// </summary>
+        /// <param name="targetRect">The rectangle.</param>
+        /// <param name="point">The test point.</param>
+        /// <returns></returns>
         public static Point GetSafePoint(this Rect targetRect, Point point)
         {
             var safePoint = new Point(point.X, point.Y);
@@ -23,6 +32,13 @@ namespace ImageCropper.UWP.Helpers
             return safePoint;
         }
 
+        /// <summary>
+        /// Test whether the point is in the rectangle.
+        /// Similar to the <see cref="Rect.Contains"/> method, this method adds redundancy.
+        /// </summary>
+        /// <param name="targetRect">the rectangle.</param>
+        /// <param name="point">The test point.</param>
+        /// <returns></returns>
         public static bool IsSafePoint(this Rect targetRect, Point point)
         {
             if (point.X - targetRect.X < -0.001)
@@ -36,13 +52,27 @@ namespace ImageCropper.UWP.Helpers
             return true;
         }
 
+        /// <summary>
+        /// Determines whether a rectangle satisfies the minimum size limit.
+        /// </summary>
+        /// <param name="startPoint">The point on the upper left corner.</param>
+        /// <param name="endPoint">The point on the lower right corner.</param>
+        /// <param name="minSize">The minimum size.</param>
+        /// <returns></returns>
         public static bool IsSafeRect(Point startPoint, Point endPoint, Size minSize)
         {
             var checkPoint = new Point(startPoint.X + minSize.Width, startPoint.Y + minSize.Height);
             return checkPoint.X - endPoint.X < 0.001
                    && checkPoint.Y - endPoint.Y < 0.001;
         }
-
+        /// <summary>
+        /// Gets a rectangle with a minimum size limit.
+        /// </summary>
+        /// <param name="startPoint">The point on the upper left corner.</param>
+        /// <param name="endPoint">The point on the lower right corner.</param>
+        /// <param name="minSize">The minimum size.</param>
+        /// <param name="dragPosition">The control point.</param>
+        /// <returns></returns>
         public static Rect GetSafeRect(Point startPoint, Point endPoint, Size minSize, DragPosition dragPosition)
         {
             var checkPoint = new Point(startPoint.X + minSize.Width, startPoint.Y + minSize.Height);
@@ -81,6 +111,12 @@ namespace ImageCropper.UWP.Helpers
             return new Rect(startPoint, endPoint);
         }
 
+        /// <summary>
+        /// Gets the maximum rectangle embedded in the rectangle by a given aspect ratio.
+        /// </summary>
+        /// <param name="targetRect">The rectangle.</param>
+        /// <param name="aspectRatio">The aspect ratio.</param>
+        /// <returns></returns>
         public static Rect GetUniformRect(this Rect targetRect, double aspectRatio)
         {
             var ratio = targetRect.Width / targetRect.Height;
