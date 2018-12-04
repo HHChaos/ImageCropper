@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ImageCropper.UWP
+﻿namespace ImageCropper.UWP
 {
     /// <summary>
     /// Control point enumeration.
     /// </summary>
-    public enum DragPosition
+    internal enum DragPosition
     {
         Top,
         Bottom,
