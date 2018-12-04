@@ -10,7 +10,7 @@ namespace ImageCropper.UWP
 {
     public partial class ImageCropper
     {
-        private void DragButton_KeyDown(object sender, KeyRoutedEventArgs e)
+        private void ControlButton_KeyDown(object sender, KeyRoutedEventArgs e)
         {
             var handled = false;
             var diffPos = new Point();
@@ -37,15 +37,15 @@ namespace ImageCropper.UWP
 
             if (handled)
             {
-                var dragButtom = (FrameworkElement) sender;
-                var tag = dragButtom.Tag;
+                var controlButton = (FrameworkElement) sender;
+                var tag = controlButton.Tag;
                 if (tag != null && Enum.TryParse(tag.ToString(), false, out DragPosition dragPosition))
                     UpdateCroppedRectWithAspectRatio(dragPosition, diffPos);
                 e.Handled = true;
             }
         }
 
-        private void DragButton_KeyUp(object sender, KeyRoutedEventArgs e)
+        private void ControlButton_KeyUp(object sender, KeyRoutedEventArgs e)
         {
             var inverseImageTransform = _imageTransform.Inverse;
             if (inverseImageTransform != null)
@@ -62,7 +62,7 @@ namespace ImageCropper.UWP
             }
         }
 
-        private void DragButton_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+        private void ControlButton_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
         {
             var inverseImageTransform = _imageTransform.Inverse;
             if (inverseImageTransform != null)
@@ -79,16 +79,16 @@ namespace ImageCropper.UWP
             }
         }
 
-        private void DragButton_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+        private void ControlButton_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
         {
-            var dragButtom = (FrameworkElement) sender;
-            var dragButtomPosition = new Point(Canvas.GetLeft(dragButtom), Canvas.GetTop(dragButtom));
+            var controlButton = (FrameworkElement) sender;
+            var dragButtomPosition = new Point(Canvas.GetLeft(controlButton), Canvas.GetTop(controlButton));
             var currentPointerPosition = new Point(
-                dragButtomPosition.X + e.Position.X + e.Delta.Translation.X - dragButtom.ActualWidth / 2,
-                dragButtomPosition.Y + e.Position.Y + e.Delta.Translation.Y - dragButtom.ActualHeight / 2);
+                dragButtomPosition.X + e.Position.X + e.Delta.Translation.X - controlButton.ActualWidth / 2,
+                dragButtomPosition.Y + e.Position.Y + e.Delta.Translation.Y - controlButton.ActualHeight / 2);
             var safePosition = _restrictedSelectRect.GetSafePoint(currentPointerPosition);
             var safeDiffPoint = new Point(safePosition.X - dragButtomPosition.X, safePosition.Y - dragButtomPosition.Y);
-            var tag = dragButtom.Tag;
+            var tag = controlButton.Tag;
             if (tag != null && Enum.TryParse(tag.ToString(), false, out DragPosition dragPosition))
                 UpdateCroppedRectWithAspectRatio(dragPosition, safeDiffPoint);
         }

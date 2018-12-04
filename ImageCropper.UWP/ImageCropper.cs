@@ -111,7 +111,7 @@ namespace ImageCropper.UWP
             _lowerLeftButton = GetTemplateChild(LowerLeftButtonPartName) as Button;
             _lowerRigthButton = GetTemplateChild(LowerRightButtonPartName) as Button;
             HookUpEvents();
-            UpdateDragButtonVisibility();
+            UpdateControlButtonVisibility();
         }
 
         private void HookUpEvents()
@@ -131,80 +131,80 @@ namespace ImageCropper.UWP
             {
                 _topButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
                 _topButton.Tag = DragPosition.Top;
-                _topButton.ManipulationDelta += DragButton_ManipulationDelta;
-                _topButton.ManipulationCompleted += DragButton_ManipulationCompleted;
-                _topButton.KeyDown += DragButton_KeyDown;
-                _topButton.KeyUp += DragButton_KeyUp;
+                _topButton.ManipulationDelta += ControlButton_ManipulationDelta;
+                _topButton.ManipulationCompleted += ControlButton_ManipulationCompleted;
+                _topButton.KeyDown += ControlButton_KeyDown;
+                _topButton.KeyUp += ControlButton_KeyUp;
             }
 
             if (_bottomButton != null)
             {
                 _bottomButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
                 _bottomButton.Tag = DragPosition.Bottom;
-                _bottomButton.ManipulationDelta += DragButton_ManipulationDelta;
-                _bottomButton.ManipulationCompleted += DragButton_ManipulationCompleted;
-                _bottomButton.KeyDown += DragButton_KeyDown;
-                _bottomButton.KeyUp += DragButton_KeyUp;
+                _bottomButton.ManipulationDelta += ControlButton_ManipulationDelta;
+                _bottomButton.ManipulationCompleted += ControlButton_ManipulationCompleted;
+                _bottomButton.KeyDown += ControlButton_KeyDown;
+                _bottomButton.KeyUp += ControlButton_KeyUp;
             }
 
             if (_leftButton != null)
             {
                 _leftButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
                 _leftButton.Tag = DragPosition.Left;
-                _leftButton.ManipulationDelta += DragButton_ManipulationDelta;
-                _leftButton.ManipulationCompleted += DragButton_ManipulationCompleted;
-                _leftButton.KeyDown += DragButton_KeyDown;
-                _leftButton.KeyUp += DragButton_KeyUp;
+                _leftButton.ManipulationDelta += ControlButton_ManipulationDelta;
+                _leftButton.ManipulationCompleted += ControlButton_ManipulationCompleted;
+                _leftButton.KeyDown += ControlButton_KeyDown;
+                _leftButton.KeyUp += ControlButton_KeyUp;
             }
 
             if (_rigthButton != null)
             {
                 _rigthButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
                 _rigthButton.Tag = DragPosition.Right;
-                _rigthButton.ManipulationDelta += DragButton_ManipulationDelta;
-                _rigthButton.ManipulationCompleted += DragButton_ManipulationCompleted;
-                _rigthButton.KeyDown += DragButton_KeyDown;
-                _rigthButton.KeyUp += DragButton_KeyUp;
+                _rigthButton.ManipulationDelta += ControlButton_ManipulationDelta;
+                _rigthButton.ManipulationCompleted += ControlButton_ManipulationCompleted;
+                _rigthButton.KeyDown += ControlButton_KeyDown;
+                _rigthButton.KeyUp += ControlButton_KeyUp;
             }
 
             if (_upperLeftButton != null)
             {
                 _upperLeftButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
                 _upperLeftButton.Tag = DragPosition.UpperLeft;
-                _upperLeftButton.ManipulationDelta += DragButton_ManipulationDelta;
-                _upperLeftButton.ManipulationCompleted += DragButton_ManipulationCompleted;
-                _upperLeftButton.KeyDown += DragButton_KeyDown;
-                _upperLeftButton.KeyUp += DragButton_KeyUp;
+                _upperLeftButton.ManipulationDelta += ControlButton_ManipulationDelta;
+                _upperLeftButton.ManipulationCompleted += ControlButton_ManipulationCompleted;
+                _upperLeftButton.KeyDown += ControlButton_KeyDown;
+                _upperLeftButton.KeyUp += ControlButton_KeyUp;
             }
 
             if (_upperRightButton != null)
             {
                 _upperRightButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
                 _upperRightButton.Tag = DragPosition.UpperRight;
-                _upperRightButton.ManipulationDelta += DragButton_ManipulationDelta;
-                _upperRightButton.ManipulationCompleted += DragButton_ManipulationCompleted;
-                _upperRightButton.KeyDown += DragButton_KeyDown;
-                _upperRightButton.KeyUp += DragButton_KeyUp;
+                _upperRightButton.ManipulationDelta += ControlButton_ManipulationDelta;
+                _upperRightButton.ManipulationCompleted += ControlButton_ManipulationCompleted;
+                _upperRightButton.KeyDown += ControlButton_KeyDown;
+                _upperRightButton.KeyUp += ControlButton_KeyUp;
             }
 
             if (_lowerLeftButton != null)
             {
                 _lowerLeftButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
                 _lowerLeftButton.Tag = DragPosition.LowerLeft;
-                _lowerLeftButton.ManipulationDelta += DragButton_ManipulationDelta;
-                _lowerLeftButton.ManipulationCompleted += DragButton_ManipulationCompleted;
-                _lowerLeftButton.KeyDown += DragButton_KeyDown;
-                _lowerLeftButton.KeyUp += DragButton_KeyUp;
+                _lowerLeftButton.ManipulationDelta += ControlButton_ManipulationDelta;
+                _lowerLeftButton.ManipulationCompleted += ControlButton_ManipulationCompleted;
+                _lowerLeftButton.KeyDown += ControlButton_KeyDown;
+                _lowerLeftButton.KeyUp += ControlButton_KeyUp;
             }
 
             if (_lowerRigthButton != null)
             {
                 _lowerRigthButton.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
                 _lowerRigthButton.Tag = DragPosition.LowerRight;
-                _lowerRigthButton.ManipulationDelta += DragButton_ManipulationDelta;
-                _lowerRigthButton.ManipulationCompleted += DragButton_ManipulationCompleted;
-                _lowerRigthButton.KeyDown += DragButton_KeyDown;
-                _lowerRigthButton.KeyUp += DragButton_KeyUp;
+                _lowerRigthButton.ManipulationDelta += ControlButton_ManipulationDelta;
+                _lowerRigthButton.ManipulationCompleted += ControlButton_ManipulationCompleted;
+                _lowerRigthButton.KeyDown += ControlButton_KeyDown;
+                _lowerRigthButton.KeyUp += ControlButton_KeyUp;
             }
         }
 
@@ -222,66 +222,66 @@ namespace ImageCropper.UWP
 
             if (_topButton != null)
             {
-                _topButton.ManipulationDelta -= DragButton_ManipulationDelta;
-                _topButton.ManipulationCompleted -= DragButton_ManipulationCompleted;
-                _topButton.KeyDown -= DragButton_KeyDown;
-                _topButton.KeyUp -= DragButton_KeyUp;
+                _topButton.ManipulationDelta -= ControlButton_ManipulationDelta;
+                _topButton.ManipulationCompleted -= ControlButton_ManipulationCompleted;
+                _topButton.KeyDown -= ControlButton_KeyDown;
+                _topButton.KeyUp -= ControlButton_KeyUp;
             }
 
             if (_bottomButton != null)
             {
-                _bottomButton.ManipulationDelta -= DragButton_ManipulationDelta;
-                _bottomButton.ManipulationCompleted -= DragButton_ManipulationCompleted;
-                _bottomButton.KeyDown -= DragButton_KeyDown;
-                _bottomButton.KeyUp -= DragButton_KeyUp;
+                _bottomButton.ManipulationDelta -= ControlButton_ManipulationDelta;
+                _bottomButton.ManipulationCompleted -= ControlButton_ManipulationCompleted;
+                _bottomButton.KeyDown -= ControlButton_KeyDown;
+                _bottomButton.KeyUp -= ControlButton_KeyUp;
             }
 
             if (_leftButton != null)
             {
-                _leftButton.ManipulationDelta -= DragButton_ManipulationDelta;
-                _leftButton.ManipulationCompleted += DragButton_ManipulationCompleted;
-                _leftButton.KeyDown -= DragButton_KeyDown;
-                _leftButton.KeyUp -= DragButton_KeyUp;
+                _leftButton.ManipulationDelta -= ControlButton_ManipulationDelta;
+                _leftButton.ManipulationCompleted += ControlButton_ManipulationCompleted;
+                _leftButton.KeyDown -= ControlButton_KeyDown;
+                _leftButton.KeyUp -= ControlButton_KeyUp;
             }
 
             if (_rigthButton != null)
             {
-                _rigthButton.ManipulationDelta -= DragButton_ManipulationDelta;
-                _rigthButton.ManipulationCompleted -= DragButton_ManipulationCompleted;
-                _rigthButton.KeyDown -= DragButton_KeyDown;
-                _rigthButton.KeyUp -= DragButton_KeyUp;
+                _rigthButton.ManipulationDelta -= ControlButton_ManipulationDelta;
+                _rigthButton.ManipulationCompleted -= ControlButton_ManipulationCompleted;
+                _rigthButton.KeyDown -= ControlButton_KeyDown;
+                _rigthButton.KeyUp -= ControlButton_KeyUp;
             }
 
             if (_upperLeftButton != null)
             {
-                _upperLeftButton.ManipulationDelta -= DragButton_ManipulationDelta;
-                _upperLeftButton.ManipulationCompleted -= DragButton_ManipulationCompleted;
-                _upperLeftButton.KeyDown -= DragButton_KeyDown;
-                _upperLeftButton.KeyUp -= DragButton_KeyUp;
+                _upperLeftButton.ManipulationDelta -= ControlButton_ManipulationDelta;
+                _upperLeftButton.ManipulationCompleted -= ControlButton_ManipulationCompleted;
+                _upperLeftButton.KeyDown -= ControlButton_KeyDown;
+                _upperLeftButton.KeyUp -= ControlButton_KeyUp;
             }
 
             if (_upperRightButton != null)
             {
-                _upperRightButton.ManipulationDelta -= DragButton_ManipulationDelta;
-                _upperRightButton.ManipulationCompleted -= DragButton_ManipulationCompleted;
-                _upperRightButton.KeyDown -= DragButton_KeyDown;
-                _upperRightButton.KeyUp -= DragButton_KeyUp;
+                _upperRightButton.ManipulationDelta -= ControlButton_ManipulationDelta;
+                _upperRightButton.ManipulationCompleted -= ControlButton_ManipulationCompleted;
+                _upperRightButton.KeyDown -= ControlButton_KeyDown;
+                _upperRightButton.KeyUp -= ControlButton_KeyUp;
             }
 
             if (_lowerLeftButton != null)
             {
-                _lowerLeftButton.ManipulationDelta -= DragButton_ManipulationDelta;
-                _lowerLeftButton.ManipulationCompleted -= DragButton_ManipulationCompleted;
-                _lowerLeftButton.KeyDown -= DragButton_KeyDown;
-                _lowerLeftButton.KeyUp -= DragButton_KeyUp;
+                _lowerLeftButton.ManipulationDelta -= ControlButton_ManipulationDelta;
+                _lowerLeftButton.ManipulationCompleted -= ControlButton_ManipulationCompleted;
+                _lowerLeftButton.KeyDown -= ControlButton_KeyDown;
+                _lowerLeftButton.KeyUp -= ControlButton_KeyUp;
             }
 
             if (_lowerRigthButton != null)
             {
-                _lowerRigthButton.ManipulationDelta -= DragButton_ManipulationDelta;
-                _lowerRigthButton.ManipulationCompleted -= DragButton_ManipulationCompleted;
-                _lowerRigthButton.KeyDown -= DragButton_KeyDown;
-                _lowerRigthButton.KeyUp -= DragButton_KeyUp;
+                _lowerRigthButton.ManipulationDelta -= ControlButton_ManipulationDelta;
+                _lowerRigthButton.ManipulationCompleted -= ControlButton_ManipulationCompleted;
+                _lowerRigthButton.KeyDown -= ControlButton_KeyDown;
+                _lowerRigthButton.KeyUp -= ControlButton_KeyUp;
             }
         }
 
@@ -319,7 +319,7 @@ namespace ImageCropper.UWP
             var maxSelectedRect = _restrictedCropRect;
             _currentCroppedRect = KeepAspectRatio ? maxSelectedRect.GetUniformRect(UsedAspectRatio) : maxSelectedRect;
             UpdateImageLayout();
-            UpdateDragButtonVisibility();
+            UpdateControlButtonVisibility();
         }
 
         private void UpdateImageLayout()
@@ -588,7 +588,6 @@ namespace ImageCropper.UWP
                 {
                     var centerX = (_endX - _startX) / 2 + _startX;
                     var centerY = (_endY - _startY) / 2 + _startY;
-                    var restrictedMaxLength = Math.Min(_restrictedSelectRect.Width, _restrictedSelectRect.Height);
                     var restrictedMinLength = MinCroppedPixelLength * _imageTransform.ScaleX;
                     var maxSelectedLength = Math.Max(_endX - _startX, _endY - _startY);
                     var viewRect = new Rect(centerX - maxSelectedLength / 2, centerY - maxSelectedLength / 2, maxSelectedLength, maxSelectedLength);
@@ -630,10 +629,10 @@ namespace ImageCropper.UWP
             }
         }
 
-        private void UpdateDragButtonVisibility()
+        private void UpdateControlButtonVisibility()
         {
             var cornerBtnVisibility = RoundedCrop ? Visibility.Collapsed : Visibility.Visible;
-            var otherBtnVisibility = Visibility.Visible;
+            var otherBtnVisibility = RoundedCrop ? Visibility.Visible : SecondaryControlButtonVisibility;
             if (SourceImage == null)
                 cornerBtnVisibility = otherBtnVisibility = Visibility.Collapsed;
 
@@ -653,8 +652,6 @@ namespace ImageCropper.UWP
                 _lowerLeftButton.Visibility = cornerBtnVisibility;
             if (_lowerRigthButton != null)
                 _lowerRigthButton.Visibility = cornerBtnVisibility;
-
-            UpdateMaskArea();
         }
 
         #endregion

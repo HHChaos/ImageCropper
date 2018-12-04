@@ -14,7 +14,7 @@
             <ColumnDefinition />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <uwp:ImageCropper x:Name="ImageCropper" />
+        <uwp:ImageCropper x:Name="ImageCropper"/>
         <StackPanel Grid.Column="1" Padding="50">
             <Button
                 x:Name="PickImgButton"
@@ -25,6 +25,11 @@
                 IsOn="{x:Bind ImageCropper.RoundedCrop, Mode=TwoWay}"
                 OffContent="RoundedCrop Off"
                 OnContent="RoundedCrop On" />
+            <ToggleSwitch
+                IsOn="True"
+                x:Name="ShowSecondaryControlButtonToggleSwitch"
+                OffContent="Hide SecondaryControlButton"
+                OnContent="Show SecondaryControlButton" Toggled="ShowSecondaryControlButtonToggleSwitch_Toggled" />
             <Button
                 Click="AspectRatioButton_Click"
                 Content="no aspect ratio"

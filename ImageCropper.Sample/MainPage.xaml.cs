@@ -84,5 +84,18 @@ namespace ImageCropper.Sample
                 }
             }
         }
+
+        private void ShowSecondaryControlButtonToggleSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            var toggleSwitch = (ToggleSwitch) sender;
+            if (toggleSwitch.IsOn)
+            {
+                ImageCropper.SecondaryControlButtonVisibility = Visibility.Visible;
+            }
+            else
+            {
+                ImageCropper.SecondaryControlButtonVisibility = Visibility.Collapsed;
+            }
+        }
     }
 }

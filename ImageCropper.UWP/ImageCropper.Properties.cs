@@ -36,7 +36,15 @@ namespace ImageCropper.UWP
         {
             var target = (ImageCropper) d;
             target.UpdateAspectRatio();
-            target.UpdateDragButtonVisibility();
+            target.UpdateControlButtonVisibility();
+            target.UpdateMaskArea();
+        }
+
+        private static void OnSecondaryControlButtonVisibilityChanged(
+            DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var target = (ImageCropper) d;
+            target.UpdateControlButtonVisibility();
         }
 
         public WriteableBitmap SourceImage
@@ -60,19 +68,34 @@ namespace ImageCropper.UWP
             set => SetValue(RoundedCropProperty, value);
         }
 
-        public Brush MarkFill
+        public Brush MaskFill
         {
-            get => (Brush) GetValue(MarkFillProperty);
-            set => SetValue(MarkFillProperty, value);
+            get => (Brush) GetValue(MaskFillProperty);
+            set => SetValue(MaskFillProperty, value);
         }
 
         /// <summary>
-        ///     Gets or sets a value for the style to use for the DragButton of the ImageCropper.
+        ///     Gets or sets a value for the style to use for the PrimaryControlButton of the ImageCropper.
         /// </summary>
-        public Style DragButtonStyle
+        public Style PrimaryControlButtonStyle
         {
-            get => (Style) GetValue(DragButtonStyleProperty);
-            set => SetValue(DragButtonStyleProperty, value);
+            get => (Style) GetValue(PrimaryControlButtonStyleProperty);
+            set => SetValue(PrimaryControlButtonStyleProperty, value);
+        }
+
+        /// <summary>
+        ///     Gets or sets a value for the style to use for the SecondaryControlButtonStyle of the ImageCropper.
+        /// </summary>
+        public Style SecondaryControlButtonStyle
+        {
+            get => (Style) GetValue(SecondaryControlButtonStyleProperty);
+            set => SetValue(SecondaryControlButtonStyleProperty, value);
+        }
+
+        public Visibility SecondaryControlButtonVisibility
+        {
+            get => (Visibility) GetValue(SecondaryControlButtonVisibilityProperty);
+            set => SetValue(SecondaryControlButtonVisibilityProperty, value);
         }
 
         // Using a DependencyProperty as the backing store for AspectRatio.  This enables animation, styling, binding, etc...
@@ -90,14 +113,23 @@ namespace ImageCropper.UWP
             DependencyProperty.Register(nameof(RoundedCrop), typeof(bool), typeof(ImageCropper),
                 new PropertyMetadata(false, OnRoundedCropChanged));
 
-        // Using a DependencyProperty as the backing store for MarkFill.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MarkFillProperty =
-            DependencyProperty.Register(nameof(MarkFill), typeof(Brush), typeof(ImageCropper),
+        // Using a DependencyProperty as the backing store for MaskFill.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MaskFillProperty =
+            DependencyProperty.Register(nameof(MaskFill), typeof(Brush), typeof(ImageCropper),
                 new PropertyMetadata(default(Brush)));
 
-        public static readonly DependencyProperty DragButtonStyleProperty =
-            DependencyProperty.Register(nameof(DragButtonStyle), typeof(Style), typeof(ImageCropper),
+        public static readonly DependencyProperty PrimaryControlButtonStyleProperty =
+            DependencyProperty.Register(nameof(PrimaryControlButtonStyle), typeof(Style), typeof(ImageCropper),
                 new PropertyMetadata(default(Style)));
+
+        public static readonly DependencyProperty SecondaryControlButtonStyleProperty =
+            DependencyProperty.Register(nameof(SecondaryControlButtonStyle), typeof(Style), typeof(ImageCropper),
+                new PropertyMetadata(default(Style)));
+
+        public static readonly DependencyProperty SecondaryControlButtonVisibilityProperty =
+            DependencyProperty.Register(nameof(SecondaryControlButtonVisibility), typeof(Visibility),
+                typeof(ImageCropper),
+                new PropertyMetadata(default(Visibility), OnSecondaryControlButtonVisibilityChanged));
 
         #endregion
     }
