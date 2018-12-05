@@ -267,6 +267,8 @@ namespace ImageCropper.UWP
         /// </summary>
         private void UpdateMaskArea()
         {
+            if (_layoutGrid == null)
+                return;
             _maskAreaGeometryGroup.Children.Clear();
             _maskAreaGeometryGroup.Children.Add(new RectangleGeometry
             {
