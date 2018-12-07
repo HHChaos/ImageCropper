@@ -29,26 +29,8 @@
                 IsOn="{x:Bind ImageCropper.IsSecondaryControlButtonVisible, Mode=TwoWay}"
                 OffContent="Hide SecondaryControlButton"
                 OnContent="Show SecondaryControlButton"/>
-            <Button
-                Click="AspectRatioButton_Click"
-                Content="no aspect ratio"
-                Tag="-1" />
-            <Button
-                Click="AspectRatioButton_Click"
-                Content="aspect ratio=1:1"
-                Tag="1" />
-            <Button
-                Click="AspectRatioButton_Click"
-                Content="aspect ratio=16:9"
-                Tag="1.778" />
-            <Button
-                Click="AspectRatioButton_Click"
-                Content="aspect ratio=4:3"
-                Tag="1.333" />
-            <Button
-                Click="AspectRatioButton_Click"
-                Content="aspect ratio=9:16"
-                Tag="0.563" />
+            <ComboBox x:Name="AspectRatioComboBox"
+                      Header="AspectRatio:" />
             <Button
                 x:Name="SaveButton"
                 Margin="0,50"

@@ -36,16 +36,50 @@ namespace ImageCropper.Sample
         {
             var file = await StorageFile.GetFileFromApplicationUriAsync(new Uri("ms-appx:///Assets/test.jpg"));
             await ImageCropper.LoadImageFromFile(file);
+            var itemSource = new List<AspectRatioConfig>
+                {
+                    new AspectRatioConfig
+                    {
+                        Name = "Custom",
+                        AspectRatio = -1
+                    },
+                    new AspectRatioConfig
+                    {
+                        Name = "Square",
+                        AspectRatio = 1
+                    },
+                    new AspectRatioConfig
+                    {
+                        Name = "Landscape(16:9)",
+                        AspectRatio = 16d / 9d
+                    },
+                    new AspectRatioConfig
+                    {
+                        Name = "Portrait(9:16)",
+                        AspectRatio = 9d / 16d
+                    },
+                    new AspectRatioConfig
+                    {
+                        Name = "4:3",
+                        AspectRatio = 4d / 3d
+                    },
+                    new AspectRatioConfig
+                    {
+                        Name = "3:2",
+                        AspectRatio = 3d / 2d
+                    }
+                };
+            AspectRatioComboBox.ItemsSource = itemSource;
+            AspectRatioComboBox.DisplayMemberPath = "Name";
+            AspectRatioComboBox.SelectedValuePath = "AspectRatio";
+            AspectRatioComboBox.SelectedIndex = 0;
+            AspectRatioComboBox.SelectionChanged += this.AspectRatioComboBox_SelectionChanged;
         }
 
-        private void AspectRatioButton_Click(object sender, RoutedEventArgs e)
+        private void AspectRatioComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var element = (FrameworkElement)sender;
-            var tag = element.Tag;
-            if (tag != null && double.TryParse(tag.ToString(), out var aspectRatio))
-            {
-                ImageCropper.AspectRatio = aspectRatio;
-            }
+            var aspectRatio = (double)AspectRatioComboBox.SelectedValue;
+            ImageCropper.AspectRatio = aspectRatio;
         }
 
         private async void PickImgButton_Click(object sender, RoutedEventArgs e)
