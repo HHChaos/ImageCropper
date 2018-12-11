@@ -348,7 +348,9 @@ namespace ImageCropper.UWP
                     {
                         uniformSelectedRect.Y += (_restrictedSelectRect.Y + _restrictedSelectRect.Height) - (uniformSelectedRect.Y + uniformSelectedRect.Height);
                     }
-                    _currentCroppedRect = inverseImageTransform.TransformBounds(uniformSelectedRect);
+                    var croppedRect = inverseImageTransform.TransformBounds(uniformSelectedRect);
+                    croppedRect.Intersect(_restrictedCropRect);
+                    _currentCroppedRect = croppedRect;
                     UpdateImageLayout();
                 }
             }
