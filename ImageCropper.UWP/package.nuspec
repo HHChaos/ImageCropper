@@ -4,7 +4,7 @@
     <!--*-->
     <id>ImageCropper.UWP</id>
     <!--*-->
-    <version>1.1.7</version>
+    <version>1.1.8</version>
     <title>ImageCropper.UWP</title>
     <!--*-->
     <authors>HHChaos</authors>
@@ -19,7 +19,9 @@
     <description>The ImageCropper Control allows user to crop image freely.</description>
     <!--*-->
     <releaseNotes>Notice: this version changes a lot and may require changes to your code or style templates.
+
 Added keyboard support;
+
 
 Added Light/Dark theme support.</releaseNotes>
     <copyright>HHChaos Copyright ©  2018</copyright>
