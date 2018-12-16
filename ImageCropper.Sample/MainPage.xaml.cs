@@ -118,5 +118,10 @@ namespace ImageCropper.Sample
                 }
             }
         }
+
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            ImageCropper.Reset();
+        }
     }
 }

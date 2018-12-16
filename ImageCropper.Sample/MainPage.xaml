@@ -14,7 +14,7 @@
             <ColumnDefinition />
             <ColumnDefinition Width="Auto" />
         </Grid.ColumnDefinitions>
-        <uwp:ImageCropper x:Name="ImageCropper"/>
+        <uwp:ImageCropper x:Name="ImageCropper" />
         <StackPanel Grid.Column="1" Padding="50">
             <Button
                 x:Name="PickImgButton"
@@ -28,12 +28,15 @@
             <ToggleSwitch
                 IsOn="{x:Bind ImageCropper.IsSecondaryControlButtonVisible, Mode=TwoWay}"
                 OffContent="Hide SecondaryControlButton"
-                OnContent="Show SecondaryControlButton"/>
-            <ComboBox x:Name="AspectRatioComboBox"
-                      Header="AspectRatio:" />
+                OnContent="Show SecondaryControlButton" />
+            <ComboBox x:Name="AspectRatioComboBox" Header="AspectRatio:" />
+            <Button
+                x:Name="ResetButton"
+                Margin="0,15"
+                Click="ResetButton_Click"
+                Content="Reset" />
             <Button
                 x:Name="SaveButton"
-                Margin="0,50"
                 Click="SaveButton_Click"
                 Content="Save" />
         </StackPanel>

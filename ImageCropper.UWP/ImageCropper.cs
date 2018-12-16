@@ -336,5 +336,13 @@ namespace ImageCropper.UWP
             var croppedBitmap = await SourceImage.GetCroppedBitmapAsync(_currentCroppedRect);
             await croppedBitmap.RenderToFile(imageFile, encoderId);
         }
+
+        /// <summary>
+        /// Reset the cropped area.
+        /// </summary>
+        public void Reset()
+        {
+            InitImageLayout();
+        }
     }
 }

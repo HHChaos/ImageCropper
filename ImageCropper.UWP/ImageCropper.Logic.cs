@@ -14,10 +14,18 @@ namespace ImageCropper.UWP
         /// </summary>
         private void InitImageLayout()
         {
-            _restrictedCropRect = new Rect(0, 0, SourceImage.PixelWidth, SourceImage.PixelHeight);
-            var maxSelectedRect = _restrictedCropRect;
-            _currentCroppedRect = KeepAspectRatio ? maxSelectedRect.GetUniformRect(UsedAspectRatio) : maxSelectedRect;
-            UpdateImageLayout();
+            if (SourceImage != null)
+            {
+                _restrictedCropRect = new Rect(0, 0, SourceImage.PixelWidth, SourceImage.PixelHeight);
+                _currentCroppedRect = KeepAspectRatio ? _restrictedCropRect.GetUniformRect(UsedAspectRatio) : _restrictedCropRect;
+                UpdateImageLayout();
+            }
+            else
+            {
+                _currentCroppedRect = Rect.Empty;
+                _restrictedCropRect = Rect.Empty;
+                _restrictedSelectRect = Rect.Empty;
+            }
             UpdateControlButtonVisibility();
         }
 
@@ -26,8 +34,11 @@ namespace ImageCropper.UWP
         /// </summary>
         private void UpdateImageLayout()
         {
-            var uniformSelectedRect = CanvasRect.GetUniformRect(_currentCroppedRect.Width / _currentCroppedRect.Height);
-            UpdateImageLayoutWithViewport(uniformSelectedRect, _currentCroppedRect);
+            if (SourceImage != null)
+            {
+                var uniformSelectedRect = CanvasRect.GetUniformRect( _currentCroppedRect.Width / _currentCroppedRect.Height);
+                UpdateImageLayoutWithViewport(uniformSelectedRect, _currentCroppedRect);
+            }
         }
 
         /// <summary>
