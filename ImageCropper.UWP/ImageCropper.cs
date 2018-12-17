@@ -48,6 +48,8 @@ namespace ImageCropper.UWP
         private double _endY;
         private readonly CompositeTransform _imageTransform = new CompositeTransform();
         private readonly GeometryGroup _maskAreaGeometryGroup = new GeometryGroup {FillRule = FillRule.EvenOdd};
+        private RectangleGeometry _outerGeometry;
+        private Geometry _innerGeometry;
         private Rect _currentCroppedRect = Rect.Empty;
         private Rect _restrictedCropRect = Rect.Empty;
         private Rect _restrictedSelectRect = Rect.Empty;
@@ -131,7 +133,6 @@ namespace ImageCropper.UWP
                 _imageCanvas.SizeChanged += ImageCanvas_SizeChanged;
             if (_sourceImage != null)
             {
-                _sourceImage.RenderTransform = _imageTransform;
                 _sourceImage.ManipulationMode = ManipulationModes.TranslateX | ManipulationModes.TranslateY;
                 _sourceImage.ManipulationDelta += SourceImage_ManipulationDelta;
             }
@@ -225,7 +226,6 @@ namespace ImageCropper.UWP
                 _imageCanvas.SizeChanged -= ImageCanvas_SizeChanged;
             if (_sourceImage != null)
             {
-                _sourceImage.RenderTransform = null;
                 _sourceImage.ManipulationDelta -= SourceImage_ManipulationDelta;
             }
 
