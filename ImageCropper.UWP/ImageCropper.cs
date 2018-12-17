@@ -342,7 +342,7 @@ namespace ImageCropper.UWP
         /// </summary>
         public void Reset()
         {
-            InitImageLayout();
+            InitImageLayout(true);
         }
     }
 }

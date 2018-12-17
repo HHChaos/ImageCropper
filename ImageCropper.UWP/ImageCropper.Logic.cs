@@ -16,14 +16,14 @@ namespace ImageCropper.UWP
         /// <summary>
         /// Initializes image source transform.
         /// </summary>
-        private void InitImageLayout()
+        private void InitImageLayout(bool animate = false)
         {
             if (SourceImage != null)
             {
                 _restrictedCropRect = new Rect(0, 0, SourceImage.PixelWidth, SourceImage.PixelHeight);
                 _currentCroppedRect = KeepAspectRatio ? _restrictedCropRect.GetUniformRect(UsedAspectRatio) : _restrictedCropRect;
                 UpdateMaskAreaGeometryGroup();
-                UpdateImageLayout();
+                UpdateImageLayout(animate);
             }
             else
             {
@@ -283,8 +283,8 @@ namespace ImageCropper.UWP
             if (animate)
             {
                 var storyboard = new Storyboard();
-                storyboard.Children.Add(CreateDoubleAnimation(position.X, animationDuration, target, "(Canvas.Left)", true));
-                storyboard.Children.Add(CreateDoubleAnimation(position.Y, animationDuration, target, "(Canvas.Top)", true));
+                storyboard.Children.Add(CreateDoubleAnimation(position.X, animationDuration, target, "(Canvas.Left)", false));
+                storyboard.Children.Add(CreateDoubleAnimation(position.Y, animationDuration, target, "(Canvas.Top)", false));
                 storyboard.Begin();
             }
             else

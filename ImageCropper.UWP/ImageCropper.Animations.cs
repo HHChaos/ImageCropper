@@ -78,7 +78,7 @@ namespace ImageCropper.UWP
                 EnableDependentAnimation = enableDependentAnimation
             };
 
-            var frames = GetKeyframe(rectangle.Rect, to, duration);
+            var frames = GetRectKeyframes(rectangle.Rect, to, duration);
             foreach (var item in frames)
             {
                 animation.KeyFrames.Add(item);
@@ -90,9 +90,9 @@ namespace ImageCropper.UWP
             return animation;
         }
 
-        private static List<DiscreteObjectKeyFrame> GetKeyframe(Rect from, Rect to, TimeSpan duration)
+        private static List<DiscreteObjectKeyFrame> GetRectKeyframes(Rect from, Rect to, TimeSpan duration)
         {
-            var list = new List<DiscreteObjectKeyFrame>();
+            var rectKeyframes = new List<DiscreteObjectKeyFrame>();
             var step = TimeSpan.FromMilliseconds(10);
             var total = duration.TotalMilliseconds;
             var startPointFrom = new Point(from.X, from.Y);
@@ -102,26 +102,28 @@ namespace ImageCropper.UWP
             for (var i = new TimeSpan(); i < duration; i += step)
             {
                 var progress = i.TotalMilliseconds / duration.TotalMilliseconds;
-                list.Add(new DiscreteObjectKeyFrame
+                var startPoint = new Point
+                {
+                    X = startPointFrom.X + progress * (startPointTo.X - startPointFrom.X),
+                    Y = startPointFrom.Y + progress * (startPointTo.Y - startPointFrom.Y),
+                };
+                var endPoint= new Point
+                {
+                    X = endPointFrom.X + progress * (endPointTo.X - endPointFrom.X),
+                    Y = endPointFrom.Y + progress * (endPointTo.Y - endPointFrom.Y),
+                };
+                rectKeyframes.Add(new DiscreteObjectKeyFrame
                 {
                     KeyTime = KeyTime.FromTimeSpan(i),
-                    Value = new Rect(GetProgressPoint(progress, startPointFrom, startPointTo), GetProgressPoint(progress, endPointFrom, endPointTo))
+                    Value = new Rect(startPoint, endPoint)
                 });
             }
-            list.Add(new DiscreteObjectKeyFrame
+            rectKeyframes.Add(new DiscreteObjectKeyFrame
             {
                 KeyTime = duration,
                 Value = to
             });
-            return list;
-        }
-        private static Point GetProgressPoint(double normalizedProgress, Point from, Point to)
-        {
-            return new Point
-            {
-                X = from.X + normalizedProgress * (to.X - from.X),
-                Y = from.Y + normalizedProgress * (to.Y - from.Y),
-            };
+            return rectKeyframes;
         }
     }
 }
