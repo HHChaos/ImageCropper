@@ -1,9 +1,13 @@
 ﻿using ImageCropper.UWP.Extensions;
 using System;
+using System.Linq;
+using System.Numerics;
 using Windows.Foundation;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Hosting;
 using Windows.UI.Xaml.Media;
+using Windows.UI.Xaml.Media.Animation;
 
 namespace ImageCropper.UWP
 {
@@ -17,6 +21,7 @@ namespace ImageCropper.UWP
             _restrictedCropRect = new Rect(0, 0, SourceImage.PixelWidth, SourceImage.PixelHeight);
             var maxSelectedRect = _restrictedCropRect;
             _currentCroppedRect = KeepAspectRatio ? maxSelectedRect.GetUniformRect(UsedAspectRatio) : maxSelectedRect;
+            UpdateMaskAreaGeometryGroup();
             UpdateImageLayout();
             UpdateControlButtonVisibility();
         }
@@ -24,10 +29,10 @@ namespace ImageCropper.UWP
         /// <summary>
         /// Update image source transform.
         /// </summary>
-        private void UpdateImageLayout()
+        private void UpdateImageLayout(bool animate = false)
         {
             var uniformSelectedRect = CanvasRect.GetUniformRect(_currentCroppedRect.Width / _currentCroppedRect.Height);
-            UpdateImageLayoutWithViewport(uniformSelectedRect, _currentCroppedRect);
+            UpdateImageLayoutWithViewport(uniformSelectedRect, _currentCroppedRect, animate);
         }
 
         /// <summary>
@@ -35,7 +40,7 @@ namespace ImageCropper.UWP
         /// </summary>
         /// <param name="viewport">Viewport</param>
         /// <param name="viewportImageRect"> The real image area of viewport.</param>
-        private void UpdateImageLayoutWithViewport(Rect viewport, Rect viewportImageRect)
+        private void UpdateImageLayoutWithViewport(Rect viewport, Rect viewportImageRect, bool animate = false)
         {
             var imageScale = viewport.Width / viewportImageRect.Width;
             _imageTransform.ScaleX = _imageTransform.ScaleY = imageScale;
@@ -46,7 +51,18 @@ namespace ImageCropper.UWP
             var startPoint = _restrictedSelectRect.GetSafePoint(new Point(selectedRect.X, selectedRect.Y));
             var endPoint = _restrictedSelectRect.GetSafePoint(new Point(selectedRect.X + selectedRect.Width,
                 selectedRect.Y + selectedRect.Height));
-            UpdateSelectedRect(startPoint, endPoint);
+            if (animate)
+            {
+                AnimateUIElementOffset( new Point(_imageTransform.TranslateX, _imageTransform.TranslateY),animationDuration,_sourceImage);
+                AnimateUIElementScale( imageScale,animationDuration,_sourceImage);
+            }
+            else
+            {
+                var targetVisual = ElementCompositionPreview.GetElementVisual(_sourceImage);
+                targetVisual.Offset = new Vector3((float)_imageTransform.TranslateX, (float)_imageTransform.TranslateY, 0);
+                targetVisual.Scale = new Vector3((float)imageScale);
+            }
+            UpdateSelectedRect(startPoint, endPoint, animate);
         }
 
         /// <summary>
@@ -203,7 +219,7 @@ namespace ImageCropper.UWP
         /// </summary>
         /// <param name="startPoint">The point on the upper left corner.</param>
         /// <param name="endPoint">The point on the lower right corner.</param>
-        private void UpdateSelectedRect(Point startPoint, Point endPoint)
+        private void UpdateSelectedRect(Point startPoint, Point endPoint, bool animate = false)
         {
             _startX = startPoint.X;
             _startY = startPoint.Y;
@@ -213,85 +229,114 @@ namespace ImageCropper.UWP
             var centerY = (_endY - _startY) / 2 + _startY;
             if (_topButton != null)
             {
-                Canvas.SetLeft(_topButton, centerX);
-                Canvas.SetTop(_topButton, _startY);
+                UpdateThumbPosition(_topButton, new Point(centerX, _startY), animate);
             }
 
             if (_bottomButton != null)
             {
-                Canvas.SetLeft(_bottomButton, centerX);
-                Canvas.SetTop(_bottomButton, _endY);
+                UpdateThumbPosition(_bottomButton, new Point(centerX, _endY), animate);
             }
 
             if (_leftButton != null)
             {
-                Canvas.SetLeft(_leftButton, _startX);
-                Canvas.SetTop(_leftButton, centerY);
+                UpdateThumbPosition(_leftButton, new Point(_startX, centerY), animate);
             }
 
             if (_rigthButton != null)
             {
-                Canvas.SetLeft(_rigthButton, _endX);
-                Canvas.SetTop(_rigthButton, centerY);
+                UpdateThumbPosition(_rigthButton, new Point(_endX, centerY), animate);
             }
 
             if (_upperLeftButton != null)
             {
-                Canvas.SetLeft(_upperLeftButton, _startX);
-                Canvas.SetTop(_upperLeftButton, _startY);
+                UpdateThumbPosition(_upperLeftButton, new Point(_startX, _startY), animate);
             }
 
             if (_upperRightButton != null)
             {
-                Canvas.SetLeft(_upperRightButton, _endX);
-                Canvas.SetTop(_upperRightButton, _startY);
+                UpdateThumbPosition(_upperRightButton, new Point(_endX, _startY), animate);
             }
 
             if (_lowerLeftButton != null)
             {
-                Canvas.SetLeft(_lowerLeftButton, _startX);
-                Canvas.SetTop(_lowerLeftButton, _endY);
+                UpdateThumbPosition(_lowerLeftButton, new Point(_startX, _endY), animate);
             }
 
             if (_lowerRigthButton != null)
             {
-                Canvas.SetLeft(_lowerRigthButton, _endX);
-                Canvas.SetTop(_lowerRigthButton, _endY);
+                UpdateThumbPosition(_lowerRigthButton, new Point(_endX, _endY), animate);
             }
 
-            UpdateMaskArea();
+            UpdateMaskArea(animate);
+        }
+
+        private void UpdateThumbPosition(UIElement target, Point position, bool animate = false)
+        {
+            if (animate)
+            {
+                var storyboard = new Storyboard();
+                storyboard.Children.Add(CreateDoubleAnimation(position.X, animationDuration, target, "(Canvas.Left)", true));
+                storyboard.Children.Add(CreateDoubleAnimation(position.Y, animationDuration, target, "(Canvas.Top)", true));
+                storyboard.Begin();
+            }
+            else
+            {
+                Canvas.SetLeft(target, position.X);
+                Canvas.SetTop(target, position.Y);
+            }
         }
 
         /// <summary>
         /// Update the mask layer.
         /// </summary>
-        private void UpdateMaskArea()
+        private void UpdateMaskArea(bool animate = false)
         {
-            if (_layoutGrid == null)
+            if (_layoutGrid == null|| _maskAreaGeometryGroup.Children.Count<2)
                 return;
-            _maskAreaGeometryGroup.Children.Clear();
-            _maskAreaGeometryGroup.Children.Add(new RectangleGeometry
-            {
-                Rect = new Rect(-_layoutGrid.Padding.Left, -_layoutGrid.Padding.Top, _layoutGrid.ActualWidth,
-                    _layoutGrid.ActualHeight)
-            });
+            _outerGeometry.Rect = new Rect(-_layoutGrid.Padding.Left, -_layoutGrid.Padding.Top, _layoutGrid.ActualWidth,
+                                    _layoutGrid.ActualHeight);
+            
             if (CircularCrop)
             {
-                var centerX = (_endX - _startX) / 2 + _startX;
-                var centerY = (_endY - _startY) / 2 + _startY;
-                _maskAreaGeometryGroup.Children.Add(new EllipseGeometry
+                if (_innerGeometry is EllipseGeometry ellipseGeometry)
                 {
-                    Center = new Point(centerX, centerY),
-                    RadiusX = (_endX - _startX) / 2,
-                    RadiusY = (_endY - _startY) / 2
-                });
+                    var center = new Point((_endX - _startX) / 2 + _startX, (_endY - _startY) / 2 + _startY);
+                    var radiusX = (_endX - _startX) / 2;
+                    var radiusY = (_endY - _startY) / 2;
+                    if (animate)
+                    {
+                        var storyboard = new Storyboard();
+                        storyboard.Children.Add(CreatePointAnimation(center, animationDuration, ellipseGeometry, "EllipseGeometry.Center", true));
+                        storyboard.Children.Add(CreateDoubleAnimation(radiusX, animationDuration, ellipseGeometry, "EllipseGeometry.RadiusX", true));
+                        storyboard.Children.Add(CreateDoubleAnimation(radiusY, animationDuration, ellipseGeometry, "EllipseGeometry.RadiusY", true));
+                        storyboard.Begin();
+                    }
+                    else
+                    {
+                        ellipseGeometry.Center = center;
+                        ellipseGeometry.RadiusX = radiusX;
+                        ellipseGeometry.RadiusY = radiusY;
+                    }
+
+                }
             }
             else
             {
-                _maskAreaGeometryGroup.Children.Add(new RectangleGeometry
+                if (_innerGeometry is RectangleGeometry rectangleGeometry)
                 {
-                    Rect = new Rect(new Point(_startX, _startY), new Point(_endX, _endY))
-                });
+                    var to = new Rect(new Point(_startX, _startY), new Point(_endX, _endY));
+                    if (animate)
+                    {
+                        var storyboard = new Storyboard();
+                        storyboard.Children.Add(CreateRectangleAnimation(to, animationDuration, rectangleGeometry, true));
+                        storyboard.Begin();
+                    }
+                    else
+                    {
+                        rectangleGeometry.Rect = to;
+                    }
+
+                }
             }
 
             _layoutGrid.Clip = new RectangleGeometry
@@ -301,10 +346,27 @@ namespace ImageCropper.UWP
             };
         }
 
+        private void UpdateMaskAreaGeometryGroup()
+        {
+            _maskAreaGeometryGroup.Children.Clear();
+            _outerGeometry = new RectangleGeometry();
+            if (CircularCrop)
+            {
+                _innerGeometry = new EllipseGeometry();
+            }
+            else
+            {
+                _innerGeometry = new RectangleGeometry();
+            }
+            _maskAreaGeometryGroup.Children.Add(_outerGeometry);
+            _maskAreaGeometryGroup.Children.Add(_innerGeometry);
+            UpdateMaskArea();
+        }
+
         /// <summary>
         /// Update image aspect ratio.
         /// </summary>
-        private void UpdateAspectRatio()
+        private void UpdateAspectRatio(bool animate=false)
         {
             if (KeepAspectRatio && SourceImage != null)
             {
@@ -351,7 +413,7 @@ namespace ImageCropper.UWP
                     var croppedRect = inverseImageTransform.TransformBounds(uniformSelectedRect);
                     croppedRect.Intersect(_restrictedCropRect);
                     _currentCroppedRect = croppedRect;
-                    UpdateImageLayout();
+                    UpdateImageLayout(animate);
                 }
             }
         }

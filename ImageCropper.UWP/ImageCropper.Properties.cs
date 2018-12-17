@@ -34,7 +34,7 @@ namespace ImageCropper.UWP
             DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var target = (ImageCropper) d;
-            target.UpdateAspectRatio();
+            target.UpdateAspectRatio(true);
         }
 
         private static void OnCircularCropChanged(
@@ -43,7 +43,7 @@ namespace ImageCropper.UWP
             var target = (ImageCropper) d;
             target.UpdateAspectRatio();
             target.UpdateControlButtonVisibility();
-            target.UpdateMaskArea();
+            target.UpdateMaskAreaGeometryGroup();
         }
 
         private static void OnIsSecondaryControlButtonVisibleChanged(

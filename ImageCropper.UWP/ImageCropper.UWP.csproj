@@ -123,6 +123,7 @@
     <Compile Include="DragPosition.cs" />
     <Compile Include="Extensions\RectExtensions.cs" />
     <Compile Include="Extensions\WriteableBitmapExtensions.cs" />
+    <Compile Include="ImageCropper.Animations.cs" />
     <Compile Include="ImageCropper.Constants.cs" />
     <Compile Include="ImageCropper.cs" />
     <Compile Include="ImageCropper.Events.cs" />

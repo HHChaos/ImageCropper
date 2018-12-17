@@ -98,7 +98,7 @@ namespace ImageCropper.UWP
                     _currentCroppedRect = croppedRect;
                 }
 
-                UpdateImageLayout();
+                UpdateImageLayout(true);
             }
         }
 
@@ -115,7 +115,7 @@ namespace ImageCropper.UWP
                     _currentCroppedRect = croppedRect;
                 }
 
-                UpdateImageLayout();
+                UpdateImageLayout(true);
             }
         }
 
