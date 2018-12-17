@@ -53,6 +53,7 @@ namespace ImageCropper.UWP
         private Rect _currentCroppedRect = Rect.Empty;
         private Rect _restrictedCropRect = Rect.Empty;
         private Rect _restrictedSelectRect = Rect.Empty;
+        private TimeSpan _animationDuration = TimeSpan.FromSeconds(0.3);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ImageCropper"/> class.

@@ -46,7 +46,7 @@ namespace ImageCropper.UWP
             var target = (ImageCropper) d;
             target.UpdateAspectRatio();
             target.UpdateControlButtonVisibility();
-            target.UpdateMaskAreaGeometryGroup();
+            target.UpdateCropShape();
         }
 
         private static void OnIsSecondaryControlButtonVisibleChanged(

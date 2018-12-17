@@ -14,8 +14,6 @@ namespace ImageCropper.UWP
 {
     public partial class ImageCropper
     {
-        private TimeSpan animationDuration = TimeSpan.FromSeconds(0.2);
-
         private static void AnimateUIElementOffset(Point to, TimeSpan duration,UIElement target)
         {
             var targetVisual = ElementCompositionPreview.GetElementVisual(target);

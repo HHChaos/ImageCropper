@@ -22,7 +22,7 @@ namespace ImageCropper.UWP
             {
                 _restrictedCropRect = new Rect(0, 0, SourceImage.PixelWidth, SourceImage.PixelHeight);
                 _currentCroppedRect = KeepAspectRatio ? _restrictedCropRect.GetUniformRect(UsedAspectRatio) : _restrictedCropRect;
-                UpdateMaskAreaGeometryGroup();
+                UpdateCropShape();
                 UpdateImageLayout(animate);
             }
             else
@@ -39,8 +39,11 @@ namespace ImageCropper.UWP
         /// </summary>
         private void UpdateImageLayout(bool animate = false)
         {
-            var uniformSelectedRect = CanvasRect.GetUniformRect(_currentCroppedRect.Width / _currentCroppedRect.Height);
-            UpdateImageLayoutWithViewport(uniformSelectedRect, _currentCroppedRect, animate);
+            if (SourceImage != null)
+            {
+                var uniformSelectedRect = CanvasRect.GetUniformRect(_currentCroppedRect.Width / _currentCroppedRect.Height);
+                UpdateImageLayoutWithViewport(uniformSelectedRect, _currentCroppedRect, animate);
+            }
         }
 
         /// <summary>
@@ -61,8 +64,8 @@ namespace ImageCropper.UWP
                 selectedRect.Y + selectedRect.Height));
             if (animate)
             {
-                AnimateUIElementOffset( new Point(_imageTransform.TranslateX, _imageTransform.TranslateY),animationDuration,_sourceImage);
-                AnimateUIElementScale( imageScale,animationDuration,_sourceImage);
+                AnimateUIElementOffset( new Point(_imageTransform.TranslateX, _imageTransform.TranslateY),_animationDuration,_sourceImage);
+                AnimateUIElementScale( imageScale,_animationDuration,_sourceImage);
             }
             else
             {
@@ -283,8 +286,8 @@ namespace ImageCropper.UWP
             if (animate)
             {
                 var storyboard = new Storyboard();
-                storyboard.Children.Add(CreateDoubleAnimation(position.X, animationDuration, target, "(Canvas.Left)", false));
-                storyboard.Children.Add(CreateDoubleAnimation(position.Y, animationDuration, target, "(Canvas.Top)", false));
+                storyboard.Children.Add(CreateDoubleAnimation(position.X, _animationDuration, target, "(Canvas.Left)", false));
+                storyboard.Children.Add(CreateDoubleAnimation(position.Y, _animationDuration, target, "(Canvas.Top)", false));
                 storyboard.Begin();
             }
             else
@@ -314,9 +317,9 @@ namespace ImageCropper.UWP
                     if (animate)
                     {
                         var storyboard = new Storyboard();
-                        storyboard.Children.Add(CreatePointAnimation(center, animationDuration, ellipseGeometry, "EllipseGeometry.Center", true));
-                        storyboard.Children.Add(CreateDoubleAnimation(radiusX, animationDuration, ellipseGeometry, "EllipseGeometry.RadiusX", true));
-                        storyboard.Children.Add(CreateDoubleAnimation(radiusY, animationDuration, ellipseGeometry, "EllipseGeometry.RadiusY", true));
+                        storyboard.Children.Add(CreatePointAnimation(center, _animationDuration, ellipseGeometry, "EllipseGeometry.Center", true));
+                        storyboard.Children.Add(CreateDoubleAnimation(radiusX, _animationDuration, ellipseGeometry, "EllipseGeometry.RadiusX", true));
+                        storyboard.Children.Add(CreateDoubleAnimation(radiusY, _animationDuration, ellipseGeometry, "EllipseGeometry.RadiusY", true));
                         storyboard.Begin();
                     }
                     else
@@ -336,7 +339,7 @@ namespace ImageCropper.UWP
                     if (animate)
                     {
                         var storyboard = new Storyboard();
-                        storyboard.Children.Add(CreateRectangleAnimation(to, animationDuration, rectangleGeometry, true));
+                        storyboard.Children.Add(CreateRectangleAnimation(to, _animationDuration, rectangleGeometry, true));
                         storyboard.Begin();
                     }
                     else
@@ -354,7 +357,7 @@ namespace ImageCropper.UWP
             };
         }
 
-        private void UpdateMaskAreaGeometryGroup()
+        private void UpdateCropShape()
         {
             _maskAreaGeometryGroup.Children.Clear();
             _outerGeometry = new RectangleGeometry();
