@@ -1,8 +1,12 @@
 ﻿using ImageCropper.UWP.Extensions;
 using System;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.Graphics.Imaging;
+using Windows.Security.Cryptography;
 using Windows.Storage;
+using Windows.Storage.Streams;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -317,11 +321,11 @@ namespace ImageCropper.UWP
         /// Gets the cropped image.
         /// </summary>
         /// <returns>WriteableBitmap</returns>
-        public async Task<WriteableBitmap> GetCroppedBitmapAsync()
+        public Task<WriteableBitmap> GetCroppedBitmapAsync()
         {
             if (SourceImage == null)
                 return null;
-            return await SourceImage.GetCroppedBitmapAsync(_currentCroppedRect);
+            return SourceImage.GetCroppedImageAsync(_currentCroppedRect);
         }
 
         /// <summary>
@@ -330,12 +334,15 @@ namespace ImageCropper.UWP
         /// <param name="imageFile">The target file.</param>
         /// <param name="encoderId">The encoderId of BitmapEncoder</param>
         /// <returns></returns>
-        public async Task SaveCroppedBitmapAsync(StorageFile imageFile, Guid encoderId)
+        public async Task SaveAsync(StorageFile imageFile, BitmapFileFormat bitmapFileFormat)
         {
             if (SourceImage == null)
                 return;
-            var croppedBitmap = await SourceImage.GetCroppedBitmapAsync(_currentCroppedRect);
-            await croppedBitmap.RenderToFile(imageFile, encoderId);
+            using (var fileStream = await imageFile.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.None))
+            {
+                var bitmapEncoder = await BitmapEncoder.CreateAsync(WriteableBitmapExtensions.GetEncoderId(bitmapFileFormat), fileStream);
+                await WriteableBitmapExtensions.CropImageAsync(SourceImage, _currentCroppedRect, bitmapEncoder);
+            }
         }
 
         /// <summary>

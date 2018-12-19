@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageCropper.UWP;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -110,11 +111,11 @@ namespace ImageCropper.Sample
             {
                 if (file.Name.Contains(".png"))
                 {
-                    await ImageCropper.SaveCroppedBitmapAsync(file, BitmapEncoder.PngEncoderId);
+                    await ImageCropper.SaveAsync(file, BitmapFileFormat.Png);
                 }
                 else
                 {
-                    await ImageCropper.SaveCroppedBitmapAsync(file, BitmapEncoder.JpegEncoderId);
+                    await ImageCropper.SaveAsync(file, BitmapFileFormat.Jpeg);
                 }
             }
         }

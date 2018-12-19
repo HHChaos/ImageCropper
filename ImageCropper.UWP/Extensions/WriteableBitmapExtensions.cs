@@ -18,66 +18,65 @@ namespace ImageCropper.UWP.Extensions
     /// </summary>
     internal static class WriteableBitmapExtensions
     {
-        /// <summary>
-        /// Gets the cropped image.
-        /// </summary>
-        /// <param name="writeableBitmap">The source image.</param>
-        /// <param name="croppedRect">The cropped area.</param>
-        /// <returns></returns>
-        public static async Task<WriteableBitmap> GetCroppedBitmapAsync(this WriteableBitmap writeableBitmap,
+        internal static async Task<WriteableBitmap> GetCroppedImageAsync(this WriteableBitmap writeableBitmap,
             Rect croppedRect)
         {
-            var x = (uint) Math.Floor(croppedRect.X);
-            var y = (uint) Math.Floor(croppedRect.Y);
-            var width = (uint) Math.Floor(croppedRect.Width);
-            var height = (uint) Math.Floor(croppedRect.Height);
-            WriteableBitmap croppedBitmap;
-            var sourceStream = writeableBitmap.PixelBuffer.AsStream();
-            var buffer = new byte[sourceStream.Length];
-            await sourceStream.ReadAsync(buffer, 0, buffer.Length);
-            using (var memoryRandom = new InMemoryRandomAccessStream())
+            if (writeableBitmap == null)
             {
-                var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, memoryRandom);
-                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, (uint) writeableBitmap.PixelWidth,
-                    (uint) writeableBitmap.PixelHeight, 96.0, 96.0, buffer);
-                encoder.BitmapTransform.Bounds = new BitmapBounds
-                {
-                    X = x,
-                    Y = y,
-                    Height = height,
-                    Width = width
-                };
-                await encoder.FlushAsync();
-                croppedBitmap = new WriteableBitmap((int) encoder.BitmapTransform.Bounds.Width,
-                    (int) encoder.BitmapTransform.Bounds.Height);
-                croppedBitmap.SetSource(memoryRandom);
+                return null;
+            }
+            var croppedBitmap = new WriteableBitmap((int)Math.Floor(croppedRect.Width),(int)Math.Floor(croppedRect.Height));
+            using (var randomAccessStream = new InMemoryRandomAccessStream())
+            {
+                var bitmapEncoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, randomAccessStream);
+                await CropImageAsync(writeableBitmap, croppedRect, bitmapEncoder);
+                croppedBitmap.SetSource(randomAccessStream);
             }
             return croppedBitmap;
         }
 
-        /// <summary>
-        /// Save the cropped image to a file.
-        /// </summary>
-        /// <param name="writeableBitmap">The source image.</param>
-        /// <param name="imageFile">The target file.</param>
-        /// <param name="encoderId">The encoderId of BitmapEncoder</param>
-        /// <returns></returns>
-        public static async Task RenderToFile(this WriteableBitmap writeableBitmap, StorageFile imageFile, Guid encoderId)
+        internal static async Task CropImageAsync(WriteableBitmap writeableBitmap, Rect croppedRect, BitmapEncoder bitmapEncoder)
         {
-            using (var stream = await imageFile.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.None))
+            croppedRect.X = croppedRect.X > 0 ? croppedRect.X : 0;
+            croppedRect.Y = croppedRect.Y > 0 ? croppedRect.Y : 0;
+            var x = (uint)Math.Floor(croppedRect.X);
+            var y = (uint)Math.Floor(croppedRect.Y);
+            var width = (uint)Math.Floor(croppedRect.Width);
+            var height = (uint)Math.Floor(croppedRect.Height);
+            using (var sourceStream = writeableBitmap.PixelBuffer.AsStream())
             {
-                var encoder = await BitmapEncoder.CreateAsync(encoderId, stream);
-                var pixelStream = writeableBitmap.PixelBuffer.AsStream();
-                var pixels = new byte[pixelStream.Length];
-                await pixelStream.ReadAsync(pixels, 0, pixels.Length);
-                encoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied,
-                    (uint)writeableBitmap.PixelWidth,
-                    (uint)writeableBitmap.PixelHeight,
-                    96.0,
-                    96.0,
-                    pixels);
-                await encoder.FlushAsync();
+                var buffer = new byte[sourceStream.Length];
+                await sourceStream.ReadAsync(buffer, 0, buffer.Length);
+                bitmapEncoder.SetPixelData(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied, (uint)writeableBitmap.PixelWidth,
+                    (uint)writeableBitmap.PixelHeight, 96.0, 96.0, buffer);
+                bitmapEncoder.BitmapTransform.Bounds = new BitmapBounds
+                {
+                    X = x,
+                    Y = y,
+                    Width = width,
+                    Height = height
+                };
+                await bitmapEncoder.FlushAsync();
             }
+        }
+        internal static Guid GetEncoderId(BitmapFileFormat bitmapFileFormat)
+        {
+            switch (bitmapFileFormat)
+            {
+                case BitmapFileFormat.Bmp:
+                    return BitmapEncoder.BmpEncoderId;
+                case BitmapFileFormat.Png:
+                    return BitmapEncoder.PngEncoderId;
+                case BitmapFileFormat.Jpeg:
+                    return BitmapEncoder.JpegEncoderId;
+                case BitmapFileFormat.Tiff:
+                    return BitmapEncoder.TiffEncoderId;
+                case BitmapFileFormat.Gif:
+                    return BitmapEncoder.GifEncoderId;
+                case BitmapFileFormat.JpegXR:
+                    return BitmapEncoder.JpegXREncoderId;
+            }
+            return BitmapEncoder.PngEncoderId;
         }
     }
 }

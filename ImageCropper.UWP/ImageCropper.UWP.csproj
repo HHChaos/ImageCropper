@@ -120,6 +120,7 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="BitmapFileFormat.cs" />
     <Compile Include="DragPosition.cs" />
     <Compile Include="Extensions\RectExtensions.cs" />
     <Compile Include="Extensions\WriteableBitmapExtensions.cs" />
