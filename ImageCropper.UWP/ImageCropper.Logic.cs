@@ -86,6 +86,11 @@ namespace ImageCropper.UWP
         /// <param name="diffPos">Position offset</param>
         private void UpdateCroppedRectWithAspectRatio(DragPosition dragPosition, Point diffPos)
         {
+            if (diffPos == default(Point))
+            {
+                return;
+            }
+
             double radian = 0d, diffPointRadian = 0d, effectiveLength = 0d;
             if (KeepAspectRatio)
             {
