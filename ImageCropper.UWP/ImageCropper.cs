@@ -330,6 +330,20 @@ namespace ImageCropper.UWP
         }
 
         /// <summary>
+        /// <see cref="SaveAsync(IRandomAccessStream,BitmapFileFormat)"/>
+        /// </summary>
+        [Obsolete]
+        public async Task SaveCroppedBitmapAsync(StorageFile imageFile, Guid encoderId)
+        {
+            if (SourceImage == null)
+                return;
+            using (var fileStream = await imageFile.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.None))
+            {
+                var bitmapEncoder = await BitmapEncoder.CreateAsync(encoderId, fileStream);
+                await WriteableBitmapExtensions.CropImageAsync(SourceImage, _currentCroppedRect, bitmapEncoder);
+            }
+        }
+        /// <summary>
         /// Save the cropped image to a file.
         /// </summary>
         /// <param name="imageFile">The target file.</param>
@@ -341,10 +355,26 @@ namespace ImageCropper.UWP
                 return;
             using (var fileStream = await imageFile.OpenAsync(FileAccessMode.ReadWrite, StorageOpenOptions.None))
             {
-                var bitmapEncoder = await BitmapEncoder.CreateAsync(WriteableBitmapExtensions.GetEncoderId(bitmapFileFormat), fileStream);
-                await WriteableBitmapExtensions.CropImageAsync(SourceImage, _currentCroppedRect, bitmapEncoder);
+                await SaveAsync(fileStream, bitmapFileFormat);
             }
         }
+
+        /// <summary>
+        /// Saves the cropped image to a stream with the specified format.
+        /// </summary>
+        /// <param name="stream">The target stream.</param>
+        /// <param name="bitmapFileFormat">the specified format.</param>
+        /// <returns>Task</returns>
+        public async Task SaveAsync(IRandomAccessStream stream, BitmapFileFormat bitmapFileFormat)
+        {
+            if (SourceImage == null)
+            {
+                return;
+            }
+            var bitmapEncoder = await BitmapEncoder.CreateAsync(WriteableBitmapExtensions.GetEncoderId(bitmapFileFormat), stream);
+            await WriteableBitmapExtensions.CropImageAsync(SourceImage, _currentCroppedRect, bitmapEncoder);
+        }
+
 
         /// <summary>
         /// Reset the cropped area.
