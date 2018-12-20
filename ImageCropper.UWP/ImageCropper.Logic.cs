@@ -57,6 +57,9 @@ namespace ImageCropper.UWP
             _imageTransform.ScaleX = _imageTransform.ScaleY = imageScale;
             _imageTransform.TranslateX = viewport.X - viewportImageRect.X * imageScale;
             _imageTransform.TranslateY = viewport.Y - viewportImageRect.Y * imageScale;
+            _inverseImageTransform.ScaleX = _inverseImageTransform.ScaleY = 1 / imageScale;
+            _inverseImageTransform.TranslateX = -_imageTransform.TranslateX / imageScale;
+            _inverseImageTransform.TranslateY = -_imageTransform.TranslateY / imageScale;
             var selectedRect = _imageTransform.TransformBounds(_currentCroppedRect);
             _restrictedSelectRect = _imageTransform.TransformBounds(_restrictedCropRect);
             var startPoint = _restrictedSelectRect.GetSafePoint(new Point(selectedRect.X, selectedRect.Y));
@@ -64,8 +67,8 @@ namespace ImageCropper.UWP
                 selectedRect.Y + selectedRect.Height));
             if (animate)
             {
-                AnimateUIElementOffset( new Point(_imageTransform.TranslateX, _imageTransform.TranslateY),_animationDuration,_sourceImage);
-                AnimateUIElementScale( imageScale,_animationDuration,_sourceImage);
+                AnimateUIElementOffset(new Point(_imageTransform.TranslateX, _imageTransform.TranslateY), _animationDuration, _sourceImage);
+                AnimateUIElementScale(imageScale, _animationDuration, _sourceImage);
             }
             else
             {
@@ -209,14 +212,12 @@ namespace ImageCropper.UWP
             selectedRect.Union(CanvasRect);
             if (selectedRect != CanvasRect)
             {
-                var inverseImageTransform = _imageTransform.Inverse;
-                if (inverseImageTransform == null) return;
-                var croppedRect = inverseImageTransform.TransformBounds(
+                var croppedRect = _inverseImageTransform.TransformBounds(
                     new Rect(startPoint, endPoint));
                 croppedRect.Intersect(_restrictedCropRect);
                 _currentCroppedRect = croppedRect;
                 var viewportRect = CanvasRect.GetUniformRect(selectedRect.Width / selectedRect.Height);
-                var viewportImgRect = inverseImageTransform.TransformBounds(selectedRect);
+                var viewportImgRect = _inverseImageTransform.TransformBounds(selectedRect);
                 UpdateImageLayoutWithViewport(viewportRect, viewportImgRect);
             }
             else
@@ -377,55 +378,51 @@ namespace ImageCropper.UWP
         /// <summary>
         /// Update image aspect ratio.
         /// </summary>
-        private void UpdateAspectRatio(bool animate=false)
+        private void UpdateAspectRatio(bool animate = false)
         {
             if (KeepAspectRatio && SourceImage != null)
             {
-                var inverseImageTransform = _imageTransform.Inverse;
-                if (inverseImageTransform != null)
+                var centerX = (_endX - _startX) / 2 + _startX;
+                var centerY = (_endY - _startY) / 2 + _startY;
+                var restrictedMinLength = MinCroppedPixelLength * _imageTransform.ScaleX;
+                var maxSelectedLength = Math.Max(_endX - _startX, _endY - _startY);
+                var viewRect = new Rect(centerX - maxSelectedLength / 2, centerY - maxSelectedLength / 2, maxSelectedLength, maxSelectedLength);
+                var uniformSelectedRect = viewRect.GetUniformRect(UsedAspectRatio);
+                if (uniformSelectedRect.Width > _restrictedSelectRect.Width || uniformSelectedRect.Height > _restrictedSelectRect.Height)
                 {
-                    var centerX = (_endX - _startX) / 2 + _startX;
-                    var centerY = (_endY - _startY) / 2 + _startY;
-                    var restrictedMinLength = MinCroppedPixelLength * _imageTransform.ScaleX;
-                    var maxSelectedLength = Math.Max(_endX - _startX, _endY - _startY);
-                    var viewRect = new Rect(centerX - maxSelectedLength / 2, centerY - maxSelectedLength / 2, maxSelectedLength, maxSelectedLength);
-                    var uniformSelectedRect = viewRect.GetUniformRect(UsedAspectRatio);
+                    uniformSelectedRect = _restrictedSelectRect.GetUniformRect(UsedAspectRatio);
+                }
+                if (uniformSelectedRect.Width < restrictedMinLength || uniformSelectedRect.Height < restrictedMinLength)
+                {
+                    var scale = restrictedMinLength / Math.Min(uniformSelectedRect.Width, uniformSelectedRect.Height);
+                    uniformSelectedRect.Width *= scale;
+                    uniformSelectedRect.Height *= scale;
                     if (uniformSelectedRect.Width > _restrictedSelectRect.Width || uniformSelectedRect.Height > _restrictedSelectRect.Height)
                     {
-                        uniformSelectedRect = _restrictedSelectRect.GetUniformRect(UsedAspectRatio);
+                        AspectRatio = -1;
+                        return;
                     }
-                    if (uniformSelectedRect.Width < restrictedMinLength || uniformSelectedRect.Height < restrictedMinLength)
-                    {
-                        var scale = restrictedMinLength / Math.Min(uniformSelectedRect.Width, uniformSelectedRect.Height);
-                        uniformSelectedRect.Width *= scale;
-                        uniformSelectedRect.Height *= scale;
-                        if (uniformSelectedRect.Width > _restrictedSelectRect.Width || uniformSelectedRect.Height > _restrictedSelectRect.Height)
-                        {
-                            AspectRatio = -1;
-                            return;
-                        }
-                    }
-                    if (_restrictedSelectRect.X > uniformSelectedRect.X)
-                    {
-                        uniformSelectedRect.X += _restrictedSelectRect.X - uniformSelectedRect.X;
-                    }
-                    if (_restrictedSelectRect.Y > uniformSelectedRect.Y)
-                    {
-                        uniformSelectedRect.Y += _restrictedSelectRect.Y - uniformSelectedRect.Y;
-                    }
-                    if ((_restrictedSelectRect.X + _restrictedSelectRect.Width) < (uniformSelectedRect.X + uniformSelectedRect.Width))
-                    {
-                        uniformSelectedRect.X += (_restrictedSelectRect.X + _restrictedSelectRect.Width) - (uniformSelectedRect.X + uniformSelectedRect.Width);
-                    }
-                    if ((_restrictedSelectRect.Y + _restrictedSelectRect.Height) < (uniformSelectedRect.Y + uniformSelectedRect.Height))
-                    {
-                        uniformSelectedRect.Y += (_restrictedSelectRect.Y + _restrictedSelectRect.Height) - (uniformSelectedRect.Y + uniformSelectedRect.Height);
-                    }
-                    var croppedRect = inverseImageTransform.TransformBounds(uniformSelectedRect);
-                    croppedRect.Intersect(_restrictedCropRect);
-                    _currentCroppedRect = croppedRect;
-                    UpdateImageLayout(animate);
                 }
+                if (_restrictedSelectRect.X > uniformSelectedRect.X)
+                {
+                    uniformSelectedRect.X += _restrictedSelectRect.X - uniformSelectedRect.X;
+                }
+                if (_restrictedSelectRect.Y > uniformSelectedRect.Y)
+                {
+                    uniformSelectedRect.Y += _restrictedSelectRect.Y - uniformSelectedRect.Y;
+                }
+                if ((_restrictedSelectRect.X + _restrictedSelectRect.Width) < (uniformSelectedRect.X + uniformSelectedRect.Width))
+                {
+                    uniformSelectedRect.X += (_restrictedSelectRect.X + _restrictedSelectRect.Width) - (uniformSelectedRect.X + uniformSelectedRect.Width);
+                }
+                if ((_restrictedSelectRect.Y + _restrictedSelectRect.Height) < (uniformSelectedRect.Y + uniformSelectedRect.Height))
+                {
+                    uniformSelectedRect.Y += (_restrictedSelectRect.Y + _restrictedSelectRect.Height) - (uniformSelectedRect.Y + uniformSelectedRect.Height);
+                }
+                var croppedRect = _inverseImageTransform.TransformBounds(uniformSelectedRect);
+                croppedRect.Intersect(_restrictedCropRect);
+                _currentCroppedRect = croppedRect;
+                UpdateImageLayout(animate);
             }
         }
 

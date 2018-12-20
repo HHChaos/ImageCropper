@@ -51,6 +51,7 @@ namespace ImageCropper.UWP
         private double _endX;
         private double _endY;
         private readonly CompositeTransform _imageTransform = new CompositeTransform();
+        private readonly CompositeTransform _inverseImageTransform = new CompositeTransform();
         private readonly GeometryGroup _maskAreaGeometryGroup = new GeometryGroup {FillRule = FillRule.EvenOdd};
         private RectangleGeometry _outerGeometry;
         private Geometry _innerGeometry;
