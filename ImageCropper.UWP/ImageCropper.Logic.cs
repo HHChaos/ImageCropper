@@ -21,9 +21,12 @@ namespace ImageCropper.UWP
             if (SourceImage != null)
             {
                 _restrictedCropRect = new Rect(0, 0, SourceImage.PixelWidth, SourceImage.PixelHeight);
-                _currentCroppedRect = KeepAspectRatio ? _restrictedCropRect.GetUniformRect(UsedAspectRatio) : _restrictedCropRect;
-                UpdateCropShape();
-                UpdateImageLayout(animate);
+                if (_restrictedCropRect.IsValid())
+                {
+                    _currentCroppedRect = KeepAspectRatio ? _restrictedCropRect.GetUniformRect(UsedAspectRatio) : _restrictedCropRect;
+                    UpdateCropShape();
+                    UpdateImageLayout(animate);
+                }
             }
             else
             {
@@ -39,7 +42,7 @@ namespace ImageCropper.UWP
         /// </summary>
         private void UpdateImageLayout(bool animate = false)
         {
-            if (SourceImage != null)
+            if (SourceImage != null && CanvasRect.IsValid())
             {
                 var uniformSelectedRect = CanvasRect.GetUniformRect(_currentCroppedRect.Width / _currentCroppedRect.Height);
                 UpdateImageLayoutWithViewport(uniformSelectedRect, _currentCroppedRect, animate);
@@ -53,6 +56,8 @@ namespace ImageCropper.UWP
         /// <param name="viewportImageRect"> The real image area of viewport.</param>
         private void UpdateImageLayoutWithViewport(Rect viewport, Rect viewportImageRect, bool animate = false)
         {
+            if (!viewport.IsValid() || !viewportImageRect.IsValid())
+                return;
             var imageScale = viewport.Width / viewportImageRect.Width;
             _imageTransform.ScaleX = _imageTransform.ScaleY = imageScale;
             _imageTransform.TranslateX = viewport.X - viewportImageRect.X * imageScale;
@@ -86,7 +91,7 @@ namespace ImageCropper.UWP
         /// <param name="diffPos">Position offset</param>
         private void UpdateCroppedRectWithAspectRatio(DragPosition dragPosition, Point diffPos)
         {
-            if (diffPos == default(Point))
+            if (diffPos == default(Point) || !CanvasRect.IsValid())
             {
                 return;
             }
@@ -308,11 +313,11 @@ namespace ImageCropper.UWP
         /// </summary>
         private void UpdateMaskArea(bool animate = false)
         {
-            if (_layoutGrid == null|| _maskAreaGeometryGroup.Children.Count<2)
+            if (_layoutGrid == null || _maskAreaGeometryGroup.Children.Count < 2)
                 return;
             _outerGeometry.Rect = new Rect(-_layoutGrid.Padding.Left, -_layoutGrid.Padding.Top, _layoutGrid.ActualWidth,
                                     _layoutGrid.ActualHeight);
-            
+
             if (CircularCrop)
             {
                 if (_innerGeometry is EllipseGeometry ellipseGeometry)
@@ -355,12 +360,12 @@ namespace ImageCropper.UWP
 
                 }
             }
-
             _layoutGrid.Clip = new RectangleGeometry
             {
                 Rect = new Rect(0, 0, _layoutGrid.ActualWidth,
                     _layoutGrid.ActualHeight)
             };
+
         }
 
         private void UpdateCropShape()
@@ -385,7 +390,7 @@ namespace ImageCropper.UWP
         /// </summary>
         private void UpdateAspectRatio(bool animate = false)
         {
-            if (KeepAspectRatio && SourceImage != null)
+            if (KeepAspectRatio && SourceImage != null && _restrictedSelectRect.IsValid())
             {
                 var centerX = (_endX - _startX) / 2 + _startX;
                 var centerY = (_endY - _startY) / 2 + _startY;

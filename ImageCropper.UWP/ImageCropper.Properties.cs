@@ -30,6 +30,7 @@ namespace ImageCropper.UWP
                 }
             }
 
+            target.InvalidateMeasure();
             target.InitImageLayout();
         }
 

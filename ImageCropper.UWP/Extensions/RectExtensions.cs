@@ -136,5 +136,10 @@ namespace ImageCropper.UWP.Extensions
 
             return new Rect(cx - width / 2f, cy - height / 2f, width, height);
         }
+
+        public static bool IsValid(this Rect targetRect)
+        {
+            return !targetRect.IsEmpty && targetRect.Width > 0 && targetRect.Height > 0;
+        }
     }
 }
