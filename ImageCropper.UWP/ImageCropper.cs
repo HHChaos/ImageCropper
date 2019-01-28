@@ -304,7 +304,7 @@ namespace ImageCropper.UWP
 
         protected override Size MeasureOverride(Size availableSize)
         {
-            if (SourceImage == null || _imageCanvas == null || SourceImage.PixelWidth == 0 || SourceImage.PixelHeight == 0)
+            if (SourceImage == null || SourceImage.PixelWidth == 0 || SourceImage.PixelHeight == 0)
             {
                 return base.MeasureOverride(availableSize);
             }

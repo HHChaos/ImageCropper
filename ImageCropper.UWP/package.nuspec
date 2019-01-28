@@ -4,7 +4,7 @@
     <!--*-->
     <id>ImageCropper.UWP</id>
     <!--*-->
-    <version>1.2.0</version>
+    <version>1.2.1</version>
     <title>ImageCropper.UWP</title>
     <!--*-->
     <authors>HHChaos</authors>
@@ -18,7 +18,7 @@
     <!--*-->
     <description>The ImageCropper Control allows user to crop image freely.</description>
     <!--*-->
-    <releaseNotes>Added animations.</releaseNotes>
+    <releaseNotes>Fixed a bug about using ImageCropper in StackPanel.</releaseNotes>
     <copyright>HHChaos Copyright ©  2018</copyright>
     <tags>C# UWP ImageCropper Cropper </tags>
     <dependencies>
