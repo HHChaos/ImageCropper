@@ -374,7 +374,6 @@ namespace ImageCropper.UWP
         /// Save the cropped image to a file.
         /// </summary>
         /// <param name="imageFile">The target file.</param>
-        /// <param name="encoderId">The encoderId of BitmapEncoder</param>
         /// <returns></returns>
         public async Task SaveAsync(StorageFile imageFile, BitmapFileFormat bitmapFileFormat)
         {

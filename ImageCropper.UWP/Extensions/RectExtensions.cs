@@ -141,5 +141,88 @@ namespace ImageCropper.UWP.Extensions
         {
             return !targetRect.IsEmpty && targetRect.Width > 0 && targetRect.Height > 0;
         }
+
+        public static bool CanContains(this Rect targetRect, Rect testRect)
+        {
+            return targetRect.Width - testRect.Width > -0.001 && targetRect.Height - testRect.Height > -0.001;
+        }
+
+        public static bool GetContainsRect(this Rect targetRect, ref Rect testRect)
+        {
+            if (!targetRect.CanContains(testRect))
+            {
+                return false;
+            }
+            if (targetRect.Left > testRect.Left)
+            {
+                testRect.X += targetRect.Left - testRect.Left;
+            }
+            if (targetRect.Top > testRect.Top)
+            {
+                testRect.Y += targetRect.Top - testRect.Top;
+            }
+            if (targetRect.Right < testRect.Right)
+            {
+                testRect.X += targetRect.Right - testRect.Right;
+            }
+            if (targetRect.Bottom < testRect.Bottom)
+            {
+                testRect.Y += targetRect.Bottom - testRect.Bottom;
+            }
+            return true;
+        }
+        public static Point GetSafeSizeChangeWhenKeepAspectRatio(this Rect targetRect, DragPosition dragPosition, Rect selectedRect, Point originSizeChange, double aspectRatio)
+        {
+            var safeWidthChange = originSizeChange.X;
+            var safeHeightChange = originSizeChange.Y;
+            var maxWidthChange = 0d;
+            var maxHeightChange = 0d;
+            switch (dragPosition)
+            {
+                case DragPosition.Top:
+                    maxWidthChange = targetRect.Width - selectedRect.Width;
+                    maxHeightChange = selectedRect.Top - targetRect.Top;
+                    break;
+                case DragPosition.Bottom:
+                    maxWidthChange = targetRect.Width - selectedRect.Width;
+                    maxHeightChange = targetRect.Bottom - selectedRect.Bottom;
+                    break;
+                case DragPosition.Left:
+                    maxWidthChange = selectedRect.Left - targetRect.Left;
+                    maxHeightChange = targetRect.Height - selectedRect.Height;
+                    break;
+                case DragPosition.Right:
+                    maxWidthChange = targetRect.Right - selectedRect.Right;
+                    maxHeightChange = targetRect.Height - selectedRect.Height;
+                    break;
+                case DragPosition.UpperLeft:
+                    maxWidthChange = selectedRect.Left - targetRect.Left;
+                    maxHeightChange = selectedRect.Top - targetRect.Top;
+                    break;
+                case DragPosition.UpperRight:
+                    maxWidthChange = targetRect.Right - selectedRect.Right;
+                    maxHeightChange = selectedRect.Top - targetRect.Top;
+                    break;
+                case DragPosition.LowerLeft:
+                    maxWidthChange = selectedRect.Left - targetRect.Left;
+                    maxHeightChange = targetRect.Bottom - selectedRect.Bottom;
+                    break;
+                case DragPosition.LowerRight:
+                    maxWidthChange = targetRect.Right - selectedRect.Right;
+                    maxHeightChange = targetRect.Bottom - selectedRect.Bottom;
+                    break;
+            }
+            if (originSizeChange.X > maxWidthChange)
+            {
+                safeWidthChange = maxWidthChange;
+                safeHeightChange = safeWidthChange / aspectRatio;
+            }
+            if (originSizeChange.Y > maxHeightChange)
+            {
+                safeHeightChange = maxHeightChange;
+                safeWidthChange = safeHeightChange * aspectRatio;
+            }
+            return new Point(safeWidthChange, safeHeightChange);
+        }
     }
 }
