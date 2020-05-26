@@ -39,6 +39,14 @@
                 x:Name="SaveButton"
                 Click="SaveButton_Click"
                 Content="Save" />
+            <TextBox
+                x:Name="RegionTextBox"
+                Margin="0,15"
+                Text="200,200,150,250" />
+            <Button
+                x:Name="TrySetRegionButton"
+                Click="TrySetRegionButton_Click"
+                Content="TrySetRegion" />
         </StackPanel>
     </Grid>
 </Page>

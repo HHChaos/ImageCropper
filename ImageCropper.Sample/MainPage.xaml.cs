@@ -124,5 +124,22 @@ namespace ImageCropper.Sample
         {
             ImageCropper.Reset();
         }
+
+        private void TrySetRegionButton_Click(object sender, RoutedEventArgs e)
+        {
+            var text = RegionTextBox.Text;
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                var points = text.Replace(" ", "").Split(',');
+                if (points.Length == 4)
+                {
+                    var x = Int32.Parse(points[0]);
+                    var y = Int32.Parse(points[1]);
+                    var width = Int32.Parse(points[2]);
+                    var height = Int32.Parse(points[3]);
+                    var ret = ImageCropper.TrySetCroppedRegion(new Rect(x, y, width, height));
+                }
+            }
+        }
     }
 }
