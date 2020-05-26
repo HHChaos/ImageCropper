@@ -302,6 +302,33 @@ namespace ImageCropper.UWP
             }
         }
 
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            if (SourceImage == null || SourceImage.PixelWidth == 0 || SourceImage.PixelHeight == 0)
+            {
+                return base.MeasureOverride(availableSize);
+            }
+            if (double.IsInfinity(availableSize.Width) || double.IsInfinity(availableSize.Height))
+            {
+                if (!double.IsInfinity(availableSize.Width))
+                {
+                    availableSize.Height = availableSize.Width / SourceImage.PixelWidth * SourceImage.PixelHeight;
+                }
+                else if (!double.IsInfinity(availableSize.Height))
+                {
+                    availableSize.Width = availableSize.Height / SourceImage.PixelHeight * SourceImage.PixelWidth;
+                }
+                else
+                {
+                    availableSize.Width = SourceImage.PixelWidth;
+                    availableSize.Height = SourceImage.PixelHeight;
+                }
+                base.MeasureOverride(availableSize);
+                return availableSize;
+            }
+            return base.MeasureOverride(availableSize);
+        }
+
         /// <summary>
         /// Load an image from a file.
         /// </summary>
@@ -347,7 +374,6 @@ namespace ImageCropper.UWP
         /// Save the cropped image to a file.
         /// </summary>
         /// <param name="imageFile">The target file.</param>
-        /// <param name="encoderId">The encoderId of BitmapEncoder</param>
         /// <returns></returns>
         public async Task SaveAsync(StorageFile imageFile, BitmapFileFormat bitmapFileFormat)
         {
